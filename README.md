@@ -1,4 +1,14 @@
+ # Nombre proyecto: InsightPipeline
 
+ ## Tabla de control de cambios 
+| ID |  Autor        | Descripción del cambio        |Fecha   |
+| :--- | :--- | :--- | :--- |
+|01  |Ana Sofia Puerta|Creación de documento |02-05-2026|
+|02| Ana Sofia Puerta, Ximena Gaibao,Jhosep Tabares, Yoseth lloreda, Oscar Uñates|Incorporación del diagrama de C1|05-05-2026|
+---
+
+## Arquitectura
+### Diagrama de C1
 El diagrama de contexto muestra una visión general del Pipeline de datos de DataCo como una caja negra, identificar sus roles principales y los sistemas externos con los que se relaciona (SAP, Oracle, GPS, Salesforce, Power BI).
 
 ### Auditor 
@@ -21,3 +31,4 @@ Todos envían la información hacia el sistema Pipeline.
 **Salesforce** Funciona con API REST. Es el único sistema con integración automática. Contiene información de visitas, acuerdos y cartera.
 
 **Power BI** se conecta a Azure SQL y refresca automáticamente los datos cada 4 horas. Lo usa el Analista de BI para construir reportes y el Gerente Comercial para consultarlos.
+
