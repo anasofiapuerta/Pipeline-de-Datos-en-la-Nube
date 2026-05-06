@@ -11,6 +11,18 @@
 ### Diagrama de C1
 El diagrama de contexto muestra una visión general del Pipeline de datos de DataCo como una caja negra, identificar sus roles principales y los sistemas externos con los que se relaciona (SAP, Oracle, GPS, Salesforce, Power BI).
 
+<div align="center">
+  <figure>
+    <img src="assets/C1/final/C1_Diagram.drawio.png" 
+         alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 1:</b> System Context Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
 ### Analista de Power BI
 Este rol se encarga de analizar y visualizar los datos del negocio mediante dashboards e informes. Se conecta a Power BI, el cual obtiene la información desde el Pipeline de Datos DataCo, donde previamente se integran y transforman los datos provenientes de sistemas como SAP, Oracle, GPS y Salesforce. De esta manera, el analista no trabaja con datos crudos, sino con información ya limpia y estructurada.
 
