@@ -1,10 +1,12 @@
  # Nombre proyecto: InsightPipeline
 
  ## Tabla de control de cambios 
-| ID |  Autor        | Descripción del cambio        |Fecha   |
-| :--- | :--- | :--- | :--- |
-|01  |Ana Sofia Puerta|Creación de documento |02-05-2026|
-|02| Ana Sofia Puerta, Ximena Gaibao,Jhosep Tabares, Yoseth lloreda, Oscar Uñates|Incorporación del diagrama de C1|05-05-2026|
+| ID  |  Autor        | Descripción del cambio           | Fecha      |
+|:----| :--- |:---------------------------------|:-----------|
+| 01  |Ana Sofia Puerta| Creación de documento            | 02-05-2026 |
+| 02  | Ana Sofia Puerta, Ximena Gaibao,Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación del diagrama de C1 | 05-05-2026 |
+| 03 | Ana Sofia Puerta, Ximena Gaibao,Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación de ADRs | 07-05-2026 |
+
 ---
 
 ## Arquitectura
@@ -54,3 +56,45 @@ Todos envían la información hacia el sistema Pipeline.
 
 **Power BI** se conecta a Azure SQL y refresca automáticamente los datos cada 4 horas. Lo usa el Analista de BI para construir reportes y el Gerente Comercial para consultarlos.
 
+### Diagrama de C2
+
+## 5 ADRs
+### Azure Data Lake Storage Gen2
+#### Título
+Uso de Azure Data Lake Storage Gen2 con Espacio de Nombres Jerárquico para el almacenamiento del pipeline de DataCo.
+
+---
+
+#### Contexto
+La situación tecnológica de DataCo presenta una fragmentación crítica donde sistemas como SAP, Oracle y Salesforce operan de forma aislada. Para resolver esto, se requiere cumplir con el RF de centralizar los datos en un único repositorio que elimine los silos actuales.
+
+Dado que el volumen de datos puede alcanzar una carga de escritura masiva de hasta 5 millones de registros por ejecución (RNF), es imperativo contar con un servicio que garantice baja latencia en operaciones de entrada/salida (I/O) para no exceder la ventana de actualización de máximo 4 horas de rezago.
+
+Bajo este escenario de escalabilidad y persistencia (ASR), el sistema debe ser capaz de persistir esta carga masiva en el contenedor Raw sin errores de tiempo de espera y permitir que Databricks realice lecturas concurrentes. Todo esto debe lograrse bajo la Restricción presupuestaria de no superar los $80 USD mensuales y siguiendo el Acuerdo de organizar los datos por fuente y fecha en zonas Raw, Silver y Gold.
+
+---
+
+#### Alternativas evaluadas
+##### Alternativa 1: Azure Blob Storage Estándar
+
+> **Ventajas:** Es la opción de almacenamiento más económica en Azure y es ideal para almacenar grandes cantidades de datos no estructurados.
+
+> **Desventajas:** Carece de un sistema de archivos jerárquico real (usa carpetas virtuales), lo que genera una degradación del rendimiento en Spark al listar o renombrar archivos en directorios con millones de registros.
+
+##### Alternativa 2: Azure Data Lake Storage Gen2
+
+> **Ventajas:** Combina el bajo costo de Blob Storage con el Hierarchical Namespace (HNS). Esto permite que las operaciones sobre directorios sean atómicas (más rápidas) y ofrece seguridad granular mediante Listas de Control de Acceso (ACLs).
+
+> **Desventajas:** La habilitación del espacio de nombres jerárquico implica un costo ligeramente superior en las transacciones de metadatos en comparación con el Blob estándar.
+
+---
+
+#### Decisión
+<!-- DEJAR EN BLANCO -->
+
+---
+
+#### Consecuencias
+<!-- DEJAR EN BLANCO -->
+
+---
