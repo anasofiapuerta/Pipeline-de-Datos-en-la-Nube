@@ -13,7 +13,7 @@ El diagrama de contexto muestra una visión general del Pipeline de datos de Dat
 
 <div align="center">
   <figure>
-    <img src="assets/C1/final/C1_Diagram.drawio.png" 
+    <img src="assets/c4_model/final/c1_final.drawio.png" 
          alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
          width="85%">
     <figcaption>
