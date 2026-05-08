@@ -131,6 +131,47 @@ Bajo este escenario de escalabilidad y persistencia (ASR), el sistema debe ser c
 
 ---
 
+### Azure Databricks
+#### Título
+
+Uso de Azure Databricks para la transformación de datos del pipeline de DataCo.
+
+---
+
+#### Contexto
+
+DataCo opera con cuatro sistemas aislados (SAP, Oracle, GPS y Salesforce) que generan datos en formatos inconsistentes. Para resolver esto se requiere cumplir con el requisito funcional de limpiar, estandarizar y enriquecer los datos antes de cargarlos en Azure SQL, eliminando el proceso manual que actualmente tarda entre 3 y 5 días hábiles.
+
+Dado que el volumen de datos puede alcanzar hasta 5 millones de registros por ejecución, el motor de transformación debe garantizar un procesamiento distribuido capaz de completarse dentro de la ventana de máximo 4 horas de rezago.
+
+En este contexto de escalabilidad y calidad de datos (ASR), el sistema debe resolver problemas concretos como fechas mal formateadas, códigos de producto distintos entre SAP y Oracle y la falta de trazabilidad entre facturas y entregas. Todo esto debe lograrse bajo la restricción de presupuesto de no superar los $80 USD mensuales y con un equipo que tiene conocimientos básicos de Python y SQL, sin experiencia previa en Spark ni administración de clústeres.
+
+---
+
+#### Alternativas evaluadas
+
+##### Alternativa 1: Azure Synapse Analytics
+
+>**Ventajas:** Es una plataforma unificada que integra Spark, SQL pools y orquestación en un solo workspace, con alta escalabilidad empresarial desde el inicio, SLA garantizado e integración nativa y profunda con Data Lake Storage Gen2 y Azure SQL.
+
+>**Desventajas:** El nivel mínimo de cómputo (Dedicated SQL Pool DWU100c) tiene un costo aproximado de $1.20 USD/hora, lo que supera el presupuesto mensual de $80 USD en pocos días de uso. Además, su curva de aprendizaje es alta ya que requiere comprender pools, pipelines y workspaces integrados, lo que no se ajusta al perfil del equipo de DataCo.
+
+##### Alternativa 2: Azure Databricks Community Edition
+
+>**Ventajas:** Su costo es cero en Community Edition, respetando completamente el presupuesto del piloto. Los notebooks en Python y SQL reducen la curva de aprendizaje para un equipo sin experiencia en Spark. El procesamiento distribuido en Apache Spark permite escalar hasta 5 millones de registros por ejecución, con integración nativa con Data Lake Storage Gen2 mediante ABFS, Azure SQL y soporte nativo para formato Parquet.
+
+>**Desventajas:** No ofrece SLA en Community Edition, lo que implica riesgo de indisponibilidad sin garantía de recuperación en tiempo definido. Las capacidades de gobernanza y seguridad empresarial son limitadas frente a Synapse Analytics, y si el volumen de datos crece demasiado será necesario migrar a un tier pago.
+
+---
+
+#### Decisión
+
+---
+
+#### Consecuencias
+
+---
+
 ### Power BI Desktop
 #### Título
 Uso de Power BI Desktop como solución principal para la capa de visualización e inteligencia de negocio de DataCo
