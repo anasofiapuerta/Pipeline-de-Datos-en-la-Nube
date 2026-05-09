@@ -56,7 +56,7 @@ Todos envían la información hacia el sistema Pipeline.
 
 **Power BI** se conecta a Azure SQL y refresca automáticamente los datos cada 4 horas. Lo usa el Analista de BI para construir reportes y el Gerente Comercial para consultarlos.
 
-### Diagrama de C2
+### Diagrama de Container (C2)
 
 ---
 
