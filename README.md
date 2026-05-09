@@ -60,6 +60,14 @@ Todos envían la información hacia el sistema Pipeline.
 
 ---
 
+### Architectural Decision Records (ADRs)
+
+* [ADR-01: Azure Data Factory vs Azure Logic Apps para la orquestación del pipeline](assets/adrs/adr-01.md)
+* [ADR-02: Azure Databricks vs Azure Synapse Analytics para la transformación de datos](assets/adrs/adr-02.md)
+* [ADR-03: Data Lake Storage Gen2 vs Blob Storage estándar como almacenamiento raw](assets/adrs/adr-03.md)
+* [ADR-04: Azure SQL Database vs Azure Cosmos DB para el almacén analítico final](assets/adrs/adr-04.md)
+* [ADR-05: Power BI Desktop vs Azure Analysis Services para la capa de visualización](assets/adrs/adr-05.md)
+
 ## ADR-04 
 #### Título
 Uso de Azure SQL Database sobre Azure Cosmos DB como almacén analítico final del pipeline de DataCo.
