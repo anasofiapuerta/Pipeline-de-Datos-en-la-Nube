@@ -4,13 +4,13 @@
 | ID  |  Autor        | Descripción del cambio           | Fecha      |
 |:----| :--- |:---------------------------------|:-----------|
 | 01  |Ana Sofia Puerta| Creación de documento            | 02-05-2026 |
-| 02  | Ana Sofia Puerta, Ximena Gaibao,Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación del diagrama de C1 | 05-05-2026 |
-| 03 | Ana Sofia Puerta, Ximena Gaibao,Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación de ADRs | 07-05-2026 |
+| 02  | Ana Sofia Puerta, Ximena Gaibao, Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación del diagrama de C1 | 05-05-2026 |
+| 03 | Ana Sofia Puerta, Ximena Gaibao, Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación de ADRs | 07-05-2026 |
 
 ---
 
 ## Arquitectura
-### Diagrama de C1
+### Diagrama de Contexto (C1)
 El diagrama de contexto muestra una visión general del Pipeline de datos de DataCo como una caja negra, identificar sus roles principales y los sistemas externos con los que se relaciona (SAP, Oracle, GPS, Salesforce, Power BI).
 
 <div align="center">
