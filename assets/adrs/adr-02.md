@@ -33,30 +33,18 @@ En este contexto de escalabilidad y calidad de datos (ASR), el sistema debe reso
 #### Decisión
 Se elige Azure Databricks (Community Edition) como motor de transformación del Pipeline de DataCo.
 
-El factor clave es el presupuesto: Azure Synapse Analytics requiere
-un clúster dedicado que su costo mensualmente supera los $80 USD establecidos para la fase piloto lo que lo descarta desde el punto de vista financiero.
+El factor clave es el presupuesto: Azure Synapse Analytics requiere un clúster dedicado que su costo mensualmente supera los $80 USD establecidos para la fase piloto lo que lo descarta desde el punto de vista financiero.
 
 Además, Databricks permite a los analistas trabajar en notebooks Python y SQL (lenguajes que el equipo ya maneja) sin necesidad de administrar infraestructura de clústeres. Para las transformaciones requeridas en DataCo: limpieza de duplicados en `clean_inventory.py`, estandarización de fechas y códigos entre SAP y Oracle, correlación de facturas con entregas GPS en `enrich_deliveries.py`, y conversión a Parquet en `load_warehouse.py` — las capacidades de Azure Databricks son suficientes.
 
 ---
 
 #### Consecuencias
-*Ventajas obtenidas:*  
-Costo cero durante la fase piloto, respetando el presupuesto de $80 USD
-mensuales. Los notebooks en Python y SQL reducen la curva de aprendizaje
-del equipo. El procesamiento distribuido en Spark permite escalar a 5
-millones de registros por ejecución. El formato Parquet en zona curated
-mejora el rendimiento de las consultas en Power BI. Integración nativa
-con Data Lake Storage Gen2 y Azure SQL.
+##### Ventajas obtenidas:
+Costo cero durante la fase piloto, respetando el presupuesto de $80 USD mensuales. Los notebooks en Python y SQL reducen la curva de aprendizaje del equipo. El procesamiento distribuido en Spark permite escalar a 5 millones de registros por ejecución. El formato Parquet en zona curated mejora el rendimiento de las consultas en Power BI. Integración nativa con Data Lake Storage Gen2 y Azure SQL.
 
-*Trade-offs asumidos:*
-Azure Databricks (Community Edition) no tiene SLA, lo que genera riesgo de indisponibilidad sin garantía de recuperación en un tiempo definido
-(crítico en los cierres de mes donde DataCo requiere procesar grandes
-volúmenes). Las capacidades de gobernanza y seguridad empresarial son
-limitadas frente a Azure Synapse, lo que puede ser un problema dado que
-los datos de ventas contienen información sensible de precios y clientes. Si el volumen de datos crece más allá de los 5 millones de
-registros, será necesario migrar a un tier pago de Databricks. La
-dependencia de notebooks puede dificultar la automatización avanzada
-sin participación del equipo técnico.
+##### Trade-offs asumidos:
+Azure Databricks (Community Edition) no tiene SLA, lo que genera riesgo de indisponibilidad sin garantía de recuperación en un tiempo definido (crítico en los cierres de mes donde DataCo requiere procesar grandes volúmenes). Las capacidades de gobernanza y seguridad empresarial son limitadas frente a Azure Synapse, lo que puede ser un problema dado que los datos de ventas contienen información sensible de precios y clientes. Si el volumen de datos crece más allá de los 5 millones de
+registros, será necesario migrar a un tier pago de Databricks. La dependencia de notebooks puede dificultar la automatización avanzada sin participación del equipo técnico.
 
 ---
