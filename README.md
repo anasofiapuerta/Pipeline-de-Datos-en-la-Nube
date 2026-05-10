@@ -68,41 +68,6 @@ Todos envían la información hacia el sistema Pipeline.
 * [ADR-04: Azure SQL Database vs Azure Cosmos DB para el almacén analítico final](assets/adrs/adr-04.md)
 * [ADR-05: Power BI Desktop vs Azure Analysis Services para la capa de visualización](assets/adrs/adr-05.md)
 
-## ADR-04 
-#### Título
-Uso de Azure SQL Database sobre Azure Cosmos DB como almacén analítico final del pipeline de DataCo.
-
----
-
-### Contexto
-DataCo requiere un almacén analítico final donde Azure Databricks deposite 
-los datos transformados tablas de hechos de ventas, inventario y logística, 
-y dimensiones de clientes, productos y bodegas para que Power BI Desktop 
-genere dashboards ejecutivos actualizados automáticamente cada 4 horas.
-
-Los ASR y drivers que determinan esta decisión son la seguridad granular, dado que los datos de precios y márgenes por cliente exigen restricción de acceso por roles directamente en la base de datos, capacidad que solo Azure SQL ofrece de forma nativa con Dynamic Data Masking y Row-Level Security; la restricción presupuestal de 80 USD mensuales, que descarta Cosmos DB al tener un modelo de facturación por Request Units impredecible para cargas analíticas de agregación; las habilidades del equipo, compuesto por 2 analistas con conocimientos de SQL y Python básico sin experiencia en el modelo de documentos ni en diseño de particionamiento de Cosmos DB; la compatibilidad nativa con Power BI Desktop gratuito, que incluye el conector SQL Server de forma predeterminada sin configuraciones adicionales; y la naturaleza relacional del modelo de datos, ya que el cruce de facturas SAP con registros GPS y la unificación de clientes entre SAP y Salesforce producen un esquema estrella, no documentos JSON anidados.DataCo necesita un almacén relacional final donde Azure Databricks deposite los datos transformados tablas de hechos de ventas, inventario y logística, y dimensiones de clientes, productos y bodegas para que Power BI Desktop los consuma y genere los dashboards ejecutivos actualizados cada 4 horas.
-
----
-
-### Alternativas evaluadas
-
-#### Alternativa 1: Azure SQL Database 
-
-**Ventajas:** Azure SQL Database fue seleccionado porque el servicio incluye un free tier en Azure for Students (32 GB y 100.000 vCores/mes) sin costo adicional durante el piloto, además de ofrecer integración nativa con Databricks mediante JDBC y compatibilidad directa con Power BI Desktop a través del conector SQL Server, sin configuraciones adicionales. Asimismo, proporciona mecanismos de seguridad como Dynamic Data Masking y Row-Level Security para restringir el acceso a precios y márgenes según el perfil de usuario, mientras que el uso de T-SQL, ya conocido por el equipo de analistas de DataCo, reduce la curva de aprendizaje. Finalmente, los índices columnares (COLUMNSTORE INDEX) permiten acelerar las consultas analíticas y de agregación ejecutadas desde Power BI.
-
-**Desventajas:** Azure SQL Database presenta como limitaciones una escalabilidad horizontal reducida, por lo que, si el volumen de datos supera el esperado durante la fase piloto, sería necesario migrar a soluciones más robustas como Azure Synapse Analytics. Además, al tratarse de una base de datos relacional con esquema fijo, cualquier cambio en la estructura de los datos requiere realizar migraciones controladas para mantener la integridad y consistencia del sistema.
-
-#### Alternativa 2: Azure Cosmos DB
-
-**Ventajas:** Ofrece un esquema flexible que permite incorporar nuevas fuentes de datos sin necesidad de realizar migraciones estructurales, además de contar con escalabilidad horizontal automática para escenarios de alta concurrencia, aunque esta capacidad no es requerida durante la fase piloto. Asimismo, dispone de una API de change feed orientada a integraciones en tiempo real, funcionalidad que tampoco resulta necesaria en el modelo batch implementado por DataCo.
-
-**Desventajas:** Presenta varias desventajas para el contexto de DataCo, entre ellas una facturación basada en Request Units (RU/s) que puede resultar impredecible, ya que una consulta analítica no optimizada podría superar el presupuesto mensual de 80 USD establecido para el piloto. Además, no ofrece soporte nativo para mecanismos de seguridad como Dynamic Data Masking ni Row-Level Security, por lo que la restricción de acceso a información sensible requeriría lógica adicional en la capa de aplicación. También existen limitaciones de integración, debido a que el conector de Cosmos DB para Power BI Desktop no está disponible de forma nativa en la versión gratuita sin configuraciones adicionales, y el conector de Spark para Databricks Community Edition requiere instalar la librería azure-cosmos-spark, aumentando la complejidad del entorno. Finalmente, el uso de Cosmos DB implica una curva de aprendizaje elevada para el equipo de analistas de DataCo, quienes no tienen experiencia en conceptos como diseño de claves de partición, modelos de documentos y gestión de RU/s.
-
----
-
-### Decisión
----
-### Consecuencias
 ---
 
 ## 5 ADRs
@@ -175,6 +140,58 @@ En este contexto de escalabilidad y calidad de datos (ASR), el sistema debe reso
 
 #### Consecuencias
 
+---
+### Azure SQL Database 
+#### Título
+
+Uso de Azure SQL Database sobre Azure Cosmos DB como almacén analítico
+final del pipeline de datos de DataCo.
+
+---
+
+#### Contexto
+
+DataCo requiere un almacén analítico final donde Azure Databricks deposite los datos transformados —tablas de hechos de ventas, inventario y logística, y dimensiones de clientes, productos y bodegas— para que Power BI Desktop genere dashboards ejecutivos actualizados automáticamente cada 4 horas.
+
+Los ASR y drivers que determinan esta decisión son: la seguridad granular, dado que los datos de precios y márgenes por cliente exigen restricción de acceso por roles directamente en la base de datos, capacidad que solo Azure SQL ofrece de forma nativa con Dynamic Data Masking y Row-Level Security; la restricción presupuestal de 80 USD mensuales, que descarta Cosmos DB al tener un modelo de facturación por Request Units impredecible para cargas analíticas de agregación, mientras que Azure SQL Free Tier tiene costo cero durante el piloto; las habilidades del equipo, compuesto por 2 analistas con conocimientos de SQL y Python básico sin experiencia en el modelo de documentos ni en diseño de particionamiento de Cosmos DB; la compatibilidad nativa con Power BI Desktop gratuito, que incluye el conector SQL Server de forma predeterminada sin configuraciones adicionales; y la naturaleza relacional del modelo de datos, ya que el cruce de facturas SAP con registros GPS y la unificación de clientes entre SAP y Salesforce producen un esquema estrella, no documentos JSON anidados.
+
+---
+
+#### Alternativas evaluadas
+
+##### Alternativa 1: Azure SQL Database
+
+**Ventajas:**Incluye Free Tier (32 GB, 100.000 vCore-segundos/mes) sin costo durante el piloto, soporta Dynamic Data Masking y Row-Level Security de forma nativa, se integra con Databricks vía JDBC y con Power BI Desktop sin configuración adicional, y ofrece índices columnares para consultas
+analíticas sobre millones de registros.
+
+**Desventajas:**
+Su escalabilidad es principalmente vertical, por lo que volúmenes mayores al piloto requerirían migrar a Azure Synapse Analytics, y su esquema fijo
+implica que cualquier cambio estructural necesita migraciones controladas.
+
+---
+
+##### Alternativa 2: Azure Cosmos DB
+
+**Ventajas:**
+Ofrece esquema flexible para incorporar nuevas fuentes sin migraciones previas, escalabilidad horizontal automática para cargas de alta
+concurrencia y un Free Tier permanente con 1.000 RU/s y 25 GB incluidos.
+
+**Desventajas:**
+Su facturación variable por RU/s es impredecible en consultas analíticas y puede superar los 80 USD del piloto, no ofrece Dynamic Data Masking ni
+Row-Level Security de forma nativa, el conector para Power BI Desktop gratuito requiere configuración adicional no disponible en la versión
+licenciada por DataCo, y el modelo de documentos y particionamiento representan una curva de aprendizaje alta para el equipo.
+
+---
+
+#### Decisión
+
+<!-- DEJAR EN BLANCO -->
+
+---
+
+#### Consecuencias
+
+<!-- DEJAR EN BLANCO -->
 ---
 
 ### Power BI Desktop
