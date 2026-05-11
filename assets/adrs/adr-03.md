@@ -1,5 +1,20 @@
+<table width="100%" style="border-collapse: collapse; border: none;">
+  <tr style="border: none;">
+    <td align="left" style="border: none;">
+      <a href="../../README.md#5-adrs">
+        <img src="https://img.shields.io/badge/-%E2%AC%85%EF%B8%8F%20Volver%20al%20README-24292e?style=for-the-badge" alt="Volver al README">
+      </a>
+    </td>
+    <td align="right" style="border: none;">
+      <img src="https://img.shields.io/badge/Documento-ADR--03-0078d4?style=for-the-badge" alt="ADR-03">
+    </td>
+  </tr>
+</table>
+
+---
+
 #### Título
-Uso de Azure Data Lake Storage Gen2 con Espacio de Nombres Jerárquico para el almacenamiento del pipeline de DataCo.
+**Uso de Azure Data Lake Storage Gen2 con Espacio de Nombres Jerárquico para el almacenamiento del pipeline de DataCo.**
 
 ---
 
