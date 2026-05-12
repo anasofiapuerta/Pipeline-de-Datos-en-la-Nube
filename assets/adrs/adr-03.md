@@ -1,19 +1,4 @@
-<table width="100%" style="border-collapse: collapse; border: none;">
-  <tr style="border: none;">
-    <td align="left" style="border: none;">
-      <a href="../../README.md#5-adrs">
-        <img src="https://img.shields.io/badge/-%E2%AC%85%EF%B8%8F%20Volver%20al%20README-24292e?style=for-the-badge" alt="Volver al README">
-      </a>
-    </td>
-    <td align="right" style="border: none;">
-      <img src="https://img.shields.io/badge/Documento-ADR--03-0078d4?style=for-the-badge" alt="ADR-03">
-    </td>
-  </tr>
-</table>
-
----
-
-#### Título
+### Título
 **Uso de Azure Data Lake Storage Gen2 con Espacio de Nombres Jerárquico para el almacenamiento del pipeline de DataCo.**
 
 ---
@@ -30,25 +15,29 @@ Bajo este escenario de escalabilidad y persistencia (ASR), el sistema debe ser c
 #### Alternativas evaluadas
 ##### Alternativa 1: Azure Blob Storage Estándar
 
-> **Ventajas:** Es la opción de almacenamiento más económica en Azure y es ideal para almacenar grandes cantidades de datos no estructurados.
+> **Ventajas:** Representa el costo de almacenamiento más bajo en la nube de Azure, lo cual facilitaría el cumplimiento del límite presupuestario de $80 USD si solo se considerara la persistencia estática de los archivos de SAP y Oracle.
 
-> **Desventajas:** Carece de un sistema de archivos jerárquico real (usa carpetas virtuales), lo que genera una degradación del rendimiento en Spark al listar o renombrar archivos en directorios con millones de registros.
+> **Desventajas:** Carece de un sistema de archivos jerárquico real (usa carpetas virtuales), lo que genera una degradación del rendimiento en Spark al listar o renombrar archivos en directorios con millones de registros. 
 
 ##### Alternativa 2: Azure Data Lake Storage Gen2
 
-> **Ventajas:** Combina el bajo costo de Blob Storage con el Hierarchical Namespace (HNS). Esto permite que las operaciones sobre directorios sean atómicas (más rápidas) y ofrece seguridad granular mediante Listas de Control de Acceso (ACLs).
+> **Ventajas:** Su Espacio de Nombres Jerárquico (HNS) permite que el pipeline trate los directorios como carpetas físicas reales. Esto es vital para la Arquitectura de Medallón, ya que permite que Databricks mueva y renombre archivos entre las zonas Raw, Silver y Gold de forma atómica y ultrarrápida. Además, permite el uso del protocolo ABFS, optimizado específicamente para que los 5 millones de registros se transfieran con el alto rendimiento necesario para garantizar la frescura de los datos cada 4 horas.
 
-> **Desventajas:** La habilitación del espacio de nombres jerárquico implica un costo ligeramente superior en las transacciones de metadatos en comparación con el Blob estándar.
+> **Desventajas:** Existe un incremento marginal en el costo de las transacciones de metadatos. Sin embargo, para el volumen de DataCo, este incremento es despreciable frente al ahorro de dinero que se logra al reducir el tiempo de ejecución de los clusters de Databricks.
 
 ---
 
 #### Decisión
-<!-- DEJAR EN BLANCO -->
+Se elige implementar Azure Data Lake Storage Gen2 (Tier Standard LRS) con la funcionalidad de Hierarchical Namespace (HNS) habilitada. Esta decisión se fundamenta en la necesidad de garantizar el cumplimiento del SLA de 4 horas. Aunque el costo transaccional es ligeramente superior al Blob Storage tradicional, la capacidad de realizar operaciones atómicas sobre carpetas físicas reduce drásticamente el tiempo de procesamiento en Databricks. Al procesar 5 millones de registros, cada minuto de reducción en el tiempo de ejecución del clúster representa un ahorro directo que permite mantener la factura total del pipeline por debajo de la restricción de $80 USD mensuales.
 
 ---
 
 #### Consecuencias
-<!-- DEJAR EN BLANCO -->
+##### Ganancias:
+La implementación de esta arquitectura genera ganancias significativas en el rendimiento operativo mediante el uso del protocolo ABFS, que elimina cuellos de botella en la ingesta masiva al comunicarse nativamente con Spark. Asimismo, facilita una organización profesional basada en la Arquitectura de Medallón, permitiendo una separación física clara entre las zonas Bronze, Silver y Gold, además de ofrecer una seguridad granular mediante ACLs para proteger datos sensibles.
+
+##### Trade-offs (Renuncias):
+Esta decisión implica una renuncia a la simplicidad administrativa inicial, ya que requiere una gestión más detallada de la estructura jerárquica de carpetas y permisos en comparación con un almacenamiento plano. Adicionalmente, se asume un costo marginalmente superior en las transacciones de metadatos, el cual se acepta bajo la premisa de ser compensado por el ahorro económico derivado de la reducción en los tiempos de ejecución de los clusters de Databricks.
 
 ---
 
