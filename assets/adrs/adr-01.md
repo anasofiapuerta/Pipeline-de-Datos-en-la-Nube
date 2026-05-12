@@ -29,12 +29,15 @@ En el plano no funcional, los atributos que no pueden sacrificarse son: la escal
 
 #### Decisión
 
-<!-- DEJAR EN BLANCO -->
-
+Después de evaluar las alternativas tecnológicas, DataCo decide adoptar Azure Data Factory como orquestador principal del pipeline de datos corporativo. La decisión se fundamenta en que ADF es la herramienta que mejor se ajusta a los requerimientos funcionales y no funcionales definidos para el proyecto, especialmente en escenarios de integración híbrida y procesamiento batch de múltiples fuentes heterogéneas. Su capacidad para conectarse de manera nativa con SAP mediante archivos CSV/SFTP, Oracle Database, Salesforce y Azure Data Lake Storage Gen2 permite centralizar la ingesta de datos sin desarrollar integraciones personalizadas complejas, reduciendo el esfuerzo operativo del equipo de analistas
 ---
 
 #### Consecuencias
 
-<!-- DEJAR EN BLANCO -->
+#### Ventajas obtenidas:
+
+La implementación de Azure Data Factory permitirá a DataCo obtener una mejora considerable en la eficiencia operativa y en la disponibilidad de la información. Gracias a la automatización del pipeline de datos, la empresa reducirá drásticamente los tiempos de consolidación de reportes, permitiendo que la gerencia tome decisiones basadas en datos más recientes y confiables. Esto también disminuirá la carga manual del equipo de analistas, quienes ya no tendrán que ejecutar procesos repetitivos de integración y limpieza de datos, pudiendo enfocarse en actividades de análisis y generación de valor para el negocio.
 
 ---
+#### Trade-offs (Renuncias)
+Al seleccionar Azure Data Factory, DataCo acepta renunciar a ciertas capacidades que otras alternativas como Azure Logic Apps ofrecen de manera más eficiente. La principal renuncia es la capacidad de trabajar con procesamiento en tiempo real o latencias sub-segundo, ya que ADF está orientado principalmente a procesos batch y no a arquitecturas event-driven o streaming. Esto significa que la empresa prioriza estabilidad y procesamiento masivo de datos sobre velocidad inmediata de respuesta.
