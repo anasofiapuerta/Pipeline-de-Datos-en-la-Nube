@@ -114,7 +114,38 @@ Todos envían la información hacia el sistema Pipeline.
 
 **Power BI** se conecta a Azure SQL y refresca automáticamente los datos cada 4 horas. Lo usa el Analista de BI para construir reportes y el Gerente Comercial para consultarlos.
 
-### Diagrama de Container (C2)
+### Diagrama de Contenedores (C2)
+El diagrama de contenedores permite hacer un "zoom" dentro del límite del sistema InsightPipeline para desglosar la arquitectura de software en sus aplicaciones y almacenes de datos individuales. En esta vista se detallan las responsabilidades distribuidas, las elecciones tecnológicas clave y cómo estos componentes se comunican entre sí para cumplir con los requerimientos de procesamiento y latencia de DataCo.
+
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c2_final.drawio.png" 
+         alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 2:</b> Containers Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+### Contenedor de Orquestación e Ingesta mediante Azure Data Factory
+
+
+### Contenedor de Almacenamiento Persistente en Azure Data Lake Storage Gen2
+En el diagrama de contenedores se aprecia como Azure Data Lake Storage Gen2 actúa como el repositorio central y pilar de persistencia de los datos en InsightPipeline, permitiendo la transición de los datos desde un estado crudo hacia uno estructurado y optimizado. Su función principal es servir como zona de aterrizaje para la ingesta masiva de archivos CSV y JSON provenientes de fuentes heterogéneas como SAP, Oracle y GPS, los cuales son depositados allí bajo la orquestación de Azure Data Factory. Al implementar un espacio de nombres jerárquico, este componente facilita una organización eficiente que soporta el procesamiento de hasta 5 millones de registros, garantizando que la información esté disponible para las etapas posteriores de transformación dentro de los tiempos de rezago exigidos por el negocio.
+
+
+La integración técnica de este almacenamiento permite un ciclo de procesamiento fundamental donde Azure Databricks extrae los archivos en bruto para ejecutar notebooks de limpieza y estandarización, devolviendo posteriormente la información enriquecida en formato Parquet a una zona refinada. Esta arquitectura de capas no solo optimiza el rendimiento de las consultas analíticas que alimentan a Azure SQL Database, sino que también garantiza al Auditor la trazabilidad necesaria para validar cada transformación según las políticas de gobierno de datos de DataCo. De este modo, el sistema asegura que los activos de información sean confiables, escalables y estén listos para la toma de decisiones estratégicas.
+
+### Contenedor de Procesamiento y Transformación con Azure Databricks
+
+
+### Contenedor de Almacén Analítico en Azure SQL Database
+
+
+### Contenedor de Visualización y Business Intelligence en Power BI
+
 
 ---
 
