@@ -141,6 +141,9 @@ En el diagrama de contenedores se aprecia como Azure Data Lake Storage Gen2 act�
 La integración técnica de este almacenamiento permite un ciclo de procesamiento fundamental donde Azure Databricks extrae los archivos en bruto para ejecutar notebooks de limpieza y estandarización, devolviendo posteriormente la información enriquecida en formato Parquet a una zona refinada. Esta arquitectura de capas no solo optimiza el rendimiento de las consultas analíticas que alimentan a Azure SQL Database, sino que también garantiza al Auditor la trazabilidad necesaria para validar cada transformación según las políticas de gobierno de datos de DataCo. De este modo, el sistema asegura que los activos de información sean confiables, escalables y estén listos para la toma de decisiones estratégicas.
 
 ### Contenedor de Procesamiento y Transformación con Azure Databricks
+Azure Databricks se encarga de la transformación del pipeline de DataCo. Se ejecuta en Community Edition y es activado por Azure Data Factory mediante un trigger que inicia la ejecución de los notebooks de limpieza, estandarización y enriquecimiento de datos en Apache Spark.
+
+Se relaciona directamente con Data Lake Storage Gen2 en ambas direcciones: primero, desde la zona raw lee los archivos CSV/JSON crudos y escribe los datos transformados en formato Parquet en la zona curated. Este formato mejora el rendimiento de las consultas siguientes. Luego de completar las transformaciones Databricks carga los datos procesados (tablas) directamente en Azure SQL Database, donde quedan disponibles para ser consultados por Power BI.
 
 
 ### Contenedor de Almacén Analítico en Azure SQL Database
