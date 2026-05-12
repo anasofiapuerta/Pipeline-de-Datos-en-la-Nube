@@ -41,11 +41,26 @@ licenciada por DataCo, y el modelo de documentos y particionamiento representan 
 
 #### Decisión
 
-<!-- DEJAR EN BLANCO -->
+Se adopta **Azure SQL Database (Free Tier)** como almacén analítico final del pipeline de DataCo.
 
+Azure SQL Database es la única opción que satisface simultáneamente los cuatro drivers del caso: el Free Tier cubre el piloto con costo cero
+dentro del presupuesto de 80 USD, Dynamic Data Masking y Row-Level Security protegen los precios y márgenes de SAP sin desarrollo adicional,
+el conector SQL Server nativo de Power BI Desktop elimina cualquier configuración extra sobre la licencia existente, y T-SQL es el lenguaje
+que los 2 analistas del equipo ya dominan. Adicionalmente, el modelo de datos resultante de cruzar facturas de SAP con registros GPS y unificar
+clientes entre SAP y Salesforce produce un esquema estrella que es el caso de uso óptimo para un motor relacional, no para documentos JSON
+anidados.
 ---
 
 #### Consecuencias
 
-<!-- DEJAR EN BLANCO -->
+**Ventajas obtenidas:**
+El pipeline de extremo a extremo opera con conectores nativos en todos los tramos sin dependencias externas, el equipo de DataCo puede auditar
+y consultar el almacén directamente en T-SQL sin capacitación adicional, la restricción de acceso a precios y márgenes se implementa en la base
+de datos garantizando que ningún perfil omita los controles de seguridad,y el costo del almacén analítico durante la fase piloto es cero,
+preservando el presupuesto de 80 USD para los demás servicios del stack.
+
+**Trade-offs asumidos:**
+Si DataCo crece hasta superar los 32 GB del Free Tier o requiere cientos de usuarios concurrentes en Power BI, será necesario migrar a Azure
+Synapse Analytics con el esfuerzo de migración de esquemas asociado. Además, el esquema relacional fijo exige modelar cualquier nueva fuente
+de datos antes de integrarla al almacén, añadiendo un paso de diseño queCosmos DB no habría requerido.
 ---
