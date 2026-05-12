@@ -31,9 +31,17 @@ Por otro lado, Azure Analysis Services proporciona un modelo semántico centrali
 ---
 
 #### Decisión
-<!-- DEJAR EN BLANCO -->
+Se decide implementar Power BI como solución principal para la capa de visualización e inteligencia de negocio de DataCo. Esta decisión se fundamenta en la necesidad de contar con una herramienta que permita construir dashboards interactivos, integrar múltiples fuentes de datos y facilitar el acceso a información analítica de manera rápida y eficiente. Power BI ofrece una interfaz intuitiva y una baja curva de aprendizaje, permitiendo que los analistas de negocio desarrollen reportes sin una dependencia constante del equipo técnico. Además, su integración con el ecosistema Microsoft y Azure facilita la conexión con los datos centralizados del proyecto. La solución también permite mantener bajos los costos operativos y simplificar la administración de la plataforma analítica. Por estas razones, se considera la alternativa más adecuada para las necesidades actuales de DataCo.
 
 ---
 
 #### Consecuencias
-<!-- DEJAR EN BLANCO -->
+**Ventajas obtenidas:**
+
+Power BI permite construir dashboards interactivos y reportes analíticos de manera rápida, reduciendo significativamente los tiempos de implementación del proyecto. Su integración nativa con múltiples fuentes de datos y con el ecosistema Microsoft facilita la conexión con Azure y los repositorios centralizados de DataCo. La interfaz intuitiva y la baja curva de aprendizaje brindan mayor autonomía a los analistas de negocio, disminuyendo la dependencia constante del equipo técnico. Además, la publicación y actualización programada de reportes simplifica el acceso a información actualizada para la toma de decisiones. El costo operativo inicial es bajo y se ajusta a las restricciones presupuestarias definidas para el proyecto.
+
+**Trade-offs asumidos:**
+
+Power BI presenta limitaciones en la centralización y gobernanza de los modelos de datos debido al uso distribuido de archivos .pbix, lo que puede generar duplicidad de métricas y lógica de negocio. Las licencias Power BI Pro también poseen restricciones en el tamaño de datasets y capacidad de procesamiento, lo que podría afectar el rendimiento si el volumen de datos crece significativamente. Asimismo, la administración de seguridad avanzada y control centralizado es más limitada en comparación con soluciones empresariales como Azure Analysis Services. La escalabilidad depende parcialmente de la capacidad de los equipos cliente y de la infraestructura asociada al servicio. Si DataCo incrementa considerablemente sus necesidades analíticas y de gobernanza, será necesario evolucionar hacia una arquitectura semántica centralizada más robusta.
+
+---
