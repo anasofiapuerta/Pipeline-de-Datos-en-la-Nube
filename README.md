@@ -147,6 +147,11 @@ La integración técnica de este almacenamiento permite un ciclo de procesamient
 
 
 ### Contenedor de Visualización y Business Intelligence en Power BI
+Power BI es la herramienta utilizada para visualizar y analizar toda la información procesada en el pipeline de datos. Se conecta directamente con Azure SQL Database para consultar los datos ya organizados y actualizados automáticamente cada 4 horas.
+
+A través de dashboards interactivos, los analistas y gerentes pueden monitorear ventas, inventario, logística y abastecimiento en tiempo real. Además, Power BI permite crear reportes dinámicos, gráficos y métricas que facilitan la toma de decisiones comerciales.
+
+También maneja seguridad mediante acceso por roles, asegurando que cada usuario vea únicamente la información correspondiente a su área. Finalmente, funciona como la capa visual del proyecto, transformando los datos técnicos del sistema en información clara, entendible y útil para el negocio.
 
 
 ---
