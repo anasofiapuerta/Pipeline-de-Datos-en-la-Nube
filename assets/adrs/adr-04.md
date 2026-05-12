@@ -49,6 +49,7 @@ el conector SQL Server nativo de Power BI Desktop elimina cualquier configuraci�
 que los 2 analistas del equipo ya dominan. Adicionalmente, el modelo de datos resultante de cruzar facturas de SAP con registros GPS y unificar
 clientes entre SAP y Salesforce produce un esquema estrella que es el caso de uso óptimo para un motor relacional, no para documentos JSON
 anidados.
+
 ---
 
 #### Consecuencias
@@ -63,4 +64,5 @@ preservando el presupuesto de 80 USD para los demás servicios del stack.
 Si DataCo crece hasta superar los 32 GB del Free Tier o requiere cientos de usuarios concurrentes en Power BI, será necesario migrar a Azure
 Synapse Analytics con el esfuerzo de migración de esquemas asociado. Además, el esquema relacional fijo exige modelar cualquier nueva fuente
 de datos antes de integrarla al almacén, añadiendo un paso de diseño queCosmos DB no habría requerido.
+
 ---
