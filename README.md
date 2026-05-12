@@ -144,6 +144,9 @@ La integración técnica de este almacenamiento permite un ciclo de procesamient
 
 
 ### Contenedor de Almacén Analítico en Azure SQL Database
+es un servicio administrado de base de datos relacional en la nube de Microsoft basado en el motor de SQL Server. Proporciona alta disponibilidad, escalabilidad automática, seguridad avanzada y administración simplificada sin necesidad de gestionar infraestructura física. En el diagrama, Azure SQL Database actúa como el repositorio analítico central donde se almacena el modelo dimensional de datos, permitiendo consultas optimizadas para reporting, análisis comercial y auditoría. Además, implementa control de acceso por roles y sirve como fuente de datos para los dashboards de Power BI y las consultas SQL realizadas por usuarios de negocio y auditores.
+
+Azure Databricks se conecta con Azure SQL Database para cargar los datos previamente transformados y enriquecidos durante los procesos ETL. Una vez almacenada la información en Azure SQL Database, Power BI se conecta directamente para consumir las tablas analíticas y actualizar automáticamente los dashboards cada 4 horas. De esta manera, Power BI permite que los usuarios visualicen indicadores de ventas, inventario, logística y auditoría en tiempo real, apoyando la toma de decisiones estratégicas y el análisis operativo del negocio.
 
 
 ### Contenedor de Visualización y Business Intelligence en Power BI
