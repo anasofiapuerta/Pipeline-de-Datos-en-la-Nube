@@ -176,6 +176,22 @@ Tres perfiles interactúan con el sistema: el Analista de Power BI que construye
 ### Componentes del Contenedor Azure Data Lake Storage Gen2
 
 ### Componentes del Contenedor Azure Databricks
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_databricks_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 5:</b> System Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+El diagrama C3 muestra los componentes internos de Azure Databricks dentro de DataCo. Azure Data Factory inicia el proceso y `ingest_sap.py` lee los archivos CSV y JSON almacenados en la zona raw del Data Lake. Luego `clean_inventory.py` limpia y estandariza los datos, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para mejorar la trazabilidad de las entregas.
+
+Para finalizar el proceso `load_warehouse.py` guarda los datos procesados en formato Parquet en la zona curated del Data Lake y los carga en Azure SQL Database. Esta arquitectura automatiza la consolidación y transformación de la información, dejando los datos listos para análisis y visualización en Microsoft Power BI Desktop.
+
+---
 
 ### Componentes del Contenedor Azure SQL Datebase 
 <div align="center">
