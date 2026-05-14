@@ -164,6 +164,20 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 ### Componentes del Contenedor Azure Data Factory
 
 ### Componentes del Contenedor Azure Data Lake Storage Gen2
+
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_adl_final.drawio.png" 
+         alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 4:</b> Azure Data Lake Gen2 Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+
 El diagrama representa la arquitectura interna del contenedor Azure Data Lake Storage Gen2, estructurado bajo el patrón de Arquitectura de Medallón para garantizar la integridad de los 5 millones de registros de DataCo. El flujo inicia con Azure Data Factory, que ingesta los datos crudos desde fuentes externas hacia la zona Bronze, mientras que el motor de Azure Databricks actúa como el núcleo de procesamiento al leer de dicha zona para limpiar, estandarizar y enriquecer la información progresivamente a través de las capas Silver y Gold. Este proceso culmina con la sincronización de las tablas refinadas hacia Azure SQL Database para el consumo analítico final.
 
 La seguridad y el gobierno de los datos son gestionados de forma transversal por el componente Access Control Manager, el cual aplica políticas de permisos granulares (POSIX ACLs) sobre cada capa para proteger la información sensible de precios y márgenes. Simultáneamente, todas las operaciones de transformación realizadas por Databricks quedan registradas en el Audit & Telemetry Store mediante logs en formato JSON, permitiendo al Auditor verificar la trazabilidad completa del pipeline y asegurar el cumplimiento de los estándares de calidad exigidos por el negocio.
