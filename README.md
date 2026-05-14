@@ -277,6 +277,25 @@ La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pas
 El flujo comienza con la ingesta y transformación: Azure Data Factory extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista Power BI conecta su dashboard mediante JDBC/T‑SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en Power BI sin acceder directamente a las tablas base.
 
 ### Componentes del Contenedor Power BI
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_powerbi_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 5:</b> System Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+Este diagrama muestra una arquitectura de datos y análisis en Power BI conectada con servicios de Azure SQL Database y Azure Databricks. Básicamente, explica cómo los datos se integran, transforman, almacenan y finalmente se visualizan en Power BI para apoyar la toma de decisiones.
+
+En el flujo, Azure Databricks procesa los datos y los envía mediante una capa de integración JDBC/SQL hacia la base de datos en Azure. Luego se manejan aspectos de roles y seguridad, permitiendo controlar qué usuarios pueden acceder a determinada información mediante permisos y seguridad a nivel de filas.
+Después aparecen las tablas de hechos como fact_ventas y fact_entregas, que almacenan información principal del negocio, y las tablas de dimensión como dim_producto, dim_cliente y dim_tiempo, que sirven para organizar y analizar los datos de manera más eficiente. Este modelo corresponde a un esquema dimensional utilizado en inteligencia de negocios.
+
+También se incluyen vistas analíticas, stored procedures, auditoría y gobierno de datos, los cuales ayudan a automatizar procesos, mantener la calidad de la información y registrar accesos o cambios realizados en el sistema.
+
+Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Connector para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
 
 ---
 
