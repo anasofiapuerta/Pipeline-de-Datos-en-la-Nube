@@ -159,8 +159,58 @@ A través de dashboards interactivos, los analistas y gerentes pueden monitorear
 
 También maneja seguridad mediante acceso por roles, asegurando que cada usuario vea únicamente la información correspondiente a su área. Finalmente, funciona como la capa visual del proyecto, transformando los datos técnicos del sistema en información clara, entendible y útil para el negocio.
 
-### Diagrama de Componentes (C3) -Arquitectura de Azure SQL Datebase 
+### Diagrama de Componentes (C3)
 
+### Componentes del Contenedor Azure Data Factory
+
+El sistema integra cuatro fuentes principales: SAP (facturas y pedidos, exporta CSV/SFTP), Oracle Database (stock por bodega, on-premise), Salesforce (visitas y acuerdos comerciales, vía API REST) y GPS (rutas y tiempos de entrega, exportación manual CSV).
+Azure Data Factory como orquestador central
+ADF es el corazón del pipeline. Recibe datos de todas las fuentes mediante distintos mecanismos (CSV local, SFTP, API REST y carga manual) y coordina el flujo completo de información entre todos los sistemas.
+Almacenamiento en Azure SQL Database
+Una vez que ADF transforma los datos, los deposita en una base de datos SQL relacional centralizada, lista para análisis. Esta capa actúa como única fuente de verdad del modelo de datos.
+Visualización en Power BI
+Power BI se conecta directamente a Azure SQL y construye dashboards de ventas, inventario y logística con refresco automático cada 4 horas. El Gerente Comercial consume estos reportes para tomar decisiones de abastecimiento.
+Usuarios y gobierno de datos
+Tres perfiles interactúan con el sistema: el Analista de Power BI que construye los reportes, el Gerente Comercial que los consume para decidir, y el Auditor que verifica trazabilidad y gobierno de datos directamente sobre SQL, monitoreando KPIs de calidad
+
+### Componentes del Contenedor Azure Data Lake Storage Gen2
+
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_adl_final.drawio.png" 
+         alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 4:</b> Azure Data Lake Gen2 Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+
+El diagrama representa la arquitectura interna del contenedor Azure Data Lake Storage Gen2, estructurado bajo el patrón de Arquitectura de Medallón para garantizar la integridad de los 5 millones de registros de DataCo. El flujo inicia con Azure Data Factory, que ingesta los datos crudos desde fuentes externas hacia la zona Bronze, mientras que el motor de Azure Databricks actúa como el núcleo de procesamiento al leer de dicha zona para limpiar, estandarizar y enriquecer la información progresivamente a través de las capas Silver y Gold. Este proceso culmina con la sincronización de las tablas refinadas hacia Azure SQL Database para el consumo analítico final.
+
+La seguridad y el gobierno de los datos son gestionados de forma transversal por el componente Access Control Manager, el cual aplica políticas de permisos granulares (POSIX ACLs) sobre cada capa para proteger la información sensible de precios y márgenes. Simultáneamente, todas las operaciones de transformación realizadas por Databricks quedan registradas en el Audit & Telemetry Store mediante logs en formato JSON, permitiendo al Auditor verificar la trazabilidad completa del pipeline y asegurar el cumplimiento de los estándares de calidad exigidos por el negocio.
+
+### Componentes del Contenedor Azure Databricks
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_databricks_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 5:</b> System Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+El diagrama C3 muestra los componentes internos de Azure Databricks dentro de DataCo. Azure Data Factory inicia el proceso y `ingest_sap.py` lee los archivos CSV y JSON almacenados en la zona raw del Data Lake. Luego `clean_inventory.py` limpia y estandariza los datos, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para mejorar la trazabilidad de las entregas.
+
+Para finalizar el proceso `load_warehouse.py` guarda los datos procesados en formato Parquet en la zona curated del Data Lake y los carga en Azure SQL Database. Esta arquitectura automatiza la consolidación y transformación de la información, dejando los datos listos para análisis y visualización en Microsoft Power BI Desktop.
+
+---
+
+### Componentes del Contenedor Azure SQL Datebase 
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_sql_final.drawio.png" 
@@ -206,14 +256,36 @@ El **Gerente Comercial**, el **Analista Power BI**, el **Gerenciamiento de datos
 
 
 
-### Relaciones principales entre contenedores
+#### Relaciones principales entre contenedores
 
 La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pase por un punto único de autenticación y autorización. Roles y seguridad aplica permisos de lectura, escritura y RLS sobre las tablas de hechos y dimensiones según la línea de negocio. Azure Data Factory invoca los stored procedures, desacoplando así la orquestación de la lógica de negocio. Las vistas analíticas encapsulan la lógica de negocio y agregan datos desde las tablas de hechos para un consumo eficiente en Power BI. Finalmente, la auditoría registra cada acceso desde la Capa JDBC para garantizar la trazabilidad.
 
 
-### Flujo general de comunicación
+#### Flujo general de comunicación
 
 El flujo comienza con la ingesta y transformación: Azure Data Factory extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista Power BI conecta su dashboard mediante JDBC/T‑SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en Power BI sin acceder directamente a las tablas base.
+
+### Componentes del Contenedor Power BI
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_powerbi_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 5:</b> System Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+Este diagrama muestra una arquitectura de datos y análisis en Power BI conectada con servicios de Azure SQL Database y Azure Databricks. Básicamente, explica cómo los datos se integran, transforman, almacenan y finalmente se visualizan en Power BI para apoyar la toma de decisiones.
+
+En el flujo, Azure Databricks procesa los datos y los envía mediante una capa de integración JDBC/SQL hacia la base de datos en Azure. Luego se manejan aspectos de roles y seguridad, permitiendo controlar qué usuarios pueden acceder a determinada información mediante permisos y seguridad a nivel de filas.
+Después aparecen las tablas de hechos como fact_ventas y fact_entregas, que almacenan información principal del negocio, y las tablas de dimensión como dim_producto, dim_cliente y dim_tiempo, que sirven para organizar y analizar los datos de manera más eficiente. Este modelo corresponde a un esquema dimensional utilizado en inteligencia de negocios.
+
+También se incluyen vistas analíticas, stored procedures, auditoría y gobierno de datos, los cuales ayudan a automatizar procesos, mantener la calidad de la información y registrar accesos o cambios realizados en el sistema.
+
+Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Connector para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
+
 ---
 
 ### Architectural Decision Records (ADRs)
