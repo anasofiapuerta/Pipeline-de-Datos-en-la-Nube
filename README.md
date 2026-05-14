@@ -159,8 +159,15 @@ A través de dashboards interactivos, los analistas y gerentes pueden monitorear
 
 También maneja seguridad mediante acceso por roles, asegurando que cada usuario vea únicamente la información correspondiente a su área. Finalmente, funciona como la capa visual del proyecto, transformando los datos técnicos del sistema en información clara, entendible y útil para el negocio.
 
-### Diagrama de Componentes (C3) -Arquitectura de Azure SQL Datebase 
+### Diagrama de Componentes (C3)
 
+### Componentes del Contenedor Azure Data Factory
+
+### Componentes del Contenedor Azure Data Lake Storage Gen2
+
+### Componentes del Contenedor Azure Databricks
+
+### Componentes del Contenedor Azure SQL Datebase 
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_sql_final.drawio.png" 
@@ -206,14 +213,17 @@ El **Gerente Comercial**, el **Analista Power BI**, el **Gerenciamiento de datos
 
 
 
-### Relaciones principales entre contenedores
+#### Relaciones principales entre contenedores
 
 La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pase por un punto único de autenticación y autorización. Roles y seguridad aplica permisos de lectura, escritura y RLS sobre las tablas de hechos y dimensiones según la línea de negocio. Azure Data Factory invoca los stored procedures, desacoplando así la orquestación de la lógica de negocio. Las vistas analíticas encapsulan la lógica de negocio y agregan datos desde las tablas de hechos para un consumo eficiente en Power BI. Finalmente, la auditoría registra cada acceso desde la Capa JDBC para garantizar la trazabilidad.
 
 
-### Flujo general de comunicación
+#### Flujo general de comunicación
 
 El flujo comienza con la ingesta y transformación: Azure Data Factory extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista Power BI conecta su dashboard mediante JDBC/T‑SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en Power BI sin acceder directamente a las tablas base.
+
+### Componentes del Contenedor Power BI
+
 ---
 
 ### Architectural Decision Records (ADRs)
