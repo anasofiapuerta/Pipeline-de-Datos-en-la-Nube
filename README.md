@@ -159,7 +159,61 @@ A través de dashboards interactivos, los analistas y gerentes pueden monitorear
 
 También maneja seguridad mediante acceso por roles, asegurando que cada usuario vea únicamente la información correspondiente a su área. Finalmente, funciona como la capa visual del proyecto, transformando los datos técnicos del sistema en información clara, entendible y útil para el negocio.
 
+### Diagrama de Componentes (C3) -Arquitectura de Azure SQL Datebase 
 
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_sql_final.drawio.png" 
+         alt="System Component Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 6:</b> System Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+
+
+**Capa de integración JDBC / SQL Audit.**  
+Este componente actúa como interfaz de conexión segura entre los consumidores de datos (Power BI y herramientas externas) y Azure SQL. Utiliza JDBC, T-SQL, Azure AD y TLS 1.2. Recibe consultas vía JDBC/T‑SQL desde Power BI y otros clientes, se conecta al módulo de Roles y seguridad para validar permisos, y reenvía las consultas autorizadas al motor SQL subyacente. Intercambia consultas SQL, credenciales de usuario, metadatos de auditoría y conjuntos de resultados.
+
+**Roles y seguridad.**  
+Gestiona el control de acceso basado en roles (RBAC) y la seguridad a nivel de fila (RLS) mediante T‑SQL `GRANT` y vistas de seguridad integradas. Es validado por la Capa JDBC/SQL Audit antes de ejecutar cualquier consulta, y aplica políticas de lectura, escritura y DDL sobre las tablas `Fact_ventas`, `Fact_entregas`, `dim_producto` y las vistas analíticas. Intercambia roles de usuario, permisos sobre objetos y filtros de RLS por línea de negocio.
+
+**Fact_ventas.**  
+Tabla relacional en Azure SQL que almacena transacciones de facturación desde SAP. Su escritura es controlada por el rol `role_crl` (utilizado por Azure Data Factory o procesos ETL), mientras que la lectura se realiza mediante el rol `role_analyst` a través de vistas analíticas. Intercambia datos como facturas SAP, fecha, cliente y monto.
+
+**Fact_entregas.**  
+Tabla relacional en Azure SQL que registra eventos de GPS de rutas y tiempos de entrega. Se vincula lógicamente con `Fact_ventas` mediante correlación (por ejemplo, número de factura) y es consultada por las vistas analíticas para medir el cumplimiento de ruta. Intercambia información de GPS, ruta, tiempo y correlación con factura.
+
+**dim_producto.**  
+Tabla de dimensión en Azure SQL que provee datos maestros de producto, incluyendo códigos SAP, categoría y línea. Se relaciona con `Fact_ventas` mediante `cod_SAP` y sirve como fuente de datos para las vistas analíticas. Intercambia código SAP, categoría y línea de producto.
+
+**Vistas analíticas.**  
+Exponen métricas de negocio precalculadas, como ventas por región y cumplimiento de ruta, mediante vistas SQL materializadas o no materializadas. Son consumidas por Power BI a través de la Capa JDBC/SQL Audit y obtienen datos de `Fact_ventas`, `Fact_entregas` y `dim_producto`. Intercambian agregaciones de ventas e indicadores de logística.
+
+**Stored procedures.**  
+Ejecutan la lógica de carga (`usp_load_ventas`) y el control de calidad (`usp_rechaz_datos`) mediante procedimientos almacenados T‑SQL. Son invocados por Azure Data Factory durante los pipelines de ingestión y escriben en `Fact_ventas` y tablas de rechazos. Intercambian datos transformados, registros de error y conteos de filas cargadas.
+
+**Auditoría y logging.**  
+Registra todo acceso a datos y consultas por rol, con una retención de 90 días, utilizando tablas de auditoría como `audit_log_query_history` y posiblemente Azure SQL Auditing. Recibe eventos desde la Capa JDBC/SQL Audit y el motor SQL, y es consultable por el rol `role_audit`. Intercambia historial de consultas, usuario, timestamp y filas devueltas.
+
+**Azure Data Factory (ADF).**  
+Orquesta la ingesta y transformación de datos desde fuentes externas (SAP, GPS, Oracle) hacia Azure SQL. Utiliza pipelines, actividades Lookup y procedimientos almacenados. Ejecuta `usp_load_ventas` y `usp_rechaz_datos` en Azure SQL y se conecta a sistemas fuente. Intercambia datos crudos, comandos de ejecución de SPs y logs de actividad.
+
+
+El **Gerente Comercial**, el **Analista Power BI**, el **Gerenciamiento de datos** y el **Auditor** son los principales actores externos. Los primeros tres se conectan a través de Power BI o clientes SQL para visualizar reportes y monitorear el sistema, mientras que el Auditor revisa los logs de auditoría y los permisos directamente.
+
+
+
+### Relaciones principales entre contenedores
+
+La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pase por un punto único de autenticación y autorización. Roles y seguridad aplica permisos de lectura, escritura y RLS sobre las tablas de hechos y dimensiones según la línea de negocio. Azure Data Factory invoca los stored procedures, desacoplando así la orquestación de la lógica de negocio. Las vistas analíticas encapsulan la lógica de negocio y agregan datos desde las tablas de hechos para un consumo eficiente en Power BI. Finalmente, la auditoría registra cada acceso desde la Capa JDBC para garantizar la trazabilidad.
+
+
+### Flujo general de comunicación
+
+El flujo comienza con la ingesta y transformación: Azure Data Factory extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista Power BI conecta su dashboard mediante JDBC/T‑SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en Power BI sin acceder directamente a las tablas base.
 ---
 
 ### Architectural Decision Records (ADRs)
