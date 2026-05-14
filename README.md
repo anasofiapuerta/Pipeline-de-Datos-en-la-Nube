@@ -163,6 +163,17 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 
 ### Componentes del Contenedor Azure Data Factory
 
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_adf_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 3:</b> Azure Data Factory.</i>
+    </figcaption>
+  </figure>
+</div>
+
 El sistema integra cuatro fuentes principales: SAP (facturas y pedidos, exporta CSV/SFTP), Oracle Database (stock por bodega, on-premise), Salesforce (visitas y acuerdos comerciales, vía API REST) y GPS (rutas y tiempos de entrega, exportación manual CSV).
 Azure Data Factory como orquestador central
 ADF es el corazón del pipeline. Recibe datos de todas las fuentes mediante distintos mecanismos (CSV local, SFTP, API REST y carga manual) y coordina el flujo completo de información entre todos los sistemas.
