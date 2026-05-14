@@ -279,7 +279,7 @@ El flujo comienza con la ingesta y transformación: Azure Data Factory extrae da
 ### Componentes del Contenedor Power BI
 <div align="center">
   <figure>
-    <img src="assets/c4_model/final/c3_powerbi_final.drawio.png" 
+    <img src="assets/c4_model/final/c3_powerbi_final.drawio.png"
          width="85%">
     <figcaption>
       <br>
