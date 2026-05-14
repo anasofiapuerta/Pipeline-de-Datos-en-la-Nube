@@ -30,6 +30,7 @@ En el plano no funcional, los atributos que no pueden sacrificarse son: la escal
 #### Decisión
 
 Después de evaluar las alternativas tecnológicas, DataCo decide adoptar Azure Data Factory como orquestador principal del pipeline de datos corporativo. La decisión se fundamenta en que ADF es la herramienta que mejor se ajusta a los requerimientos funcionales y no funcionales definidos para el proyecto, especialmente en escenarios de integración híbrida y procesamiento batch de múltiples fuentes heterogéneas. Su capacidad para conectarse de manera nativa con SAP mediante archivos CSV/SFTP, Oracle Database, Salesforce y Azure Data Lake Storage Gen2 permite centralizar la ingesta de datos sin desarrollar integraciones personalizadas complejas, reduciendo el esfuerzo operativo del equipo de analistas
+
 ---
 
 #### Consecuencias

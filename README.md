@@ -163,6 +163,16 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 
 ### Componentes del Contenedor Azure Data Factory
 
+El sistema integra cuatro fuentes principales: SAP (facturas y pedidos, exporta CSV/SFTP), Oracle Database (stock por bodega, on-premise), Salesforce (visitas y acuerdos comerciales, vía API REST) y GPS (rutas y tiempos de entrega, exportación manual CSV).
+Azure Data Factory como orquestador central
+ADF es el corazón del pipeline. Recibe datos de todas las fuentes mediante distintos mecanismos (CSV local, SFTP, API REST y carga manual) y coordina el flujo completo de información entre todos los sistemas.
+Almacenamiento en Azure SQL Database
+Una vez que ADF transforma los datos, los deposita en una base de datos SQL relacional centralizada, lista para análisis. Esta capa actúa como única fuente de verdad del modelo de datos.
+Visualización en Power BI
+Power BI se conecta directamente a Azure SQL y construye dashboards de ventas, inventario y logística con refresco automático cada 4 horas. El Gerente Comercial consume estos reportes para tomar decisiones de abastecimiento.
+Usuarios y gobierno de datos
+Tres perfiles interactúan con el sistema: el Analista de Power BI que construye los reportes, el Gerente Comercial que los consume para decidir, y el Auditor que verifica trazabilidad y gobierno de datos directamente sobre SQL, monitoreando KPIs de calidad
+
 ### Componentes del Contenedor Azure Data Lake Storage Gen2
 
 ### Componentes del Contenedor Azure Databricks
