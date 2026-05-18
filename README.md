@@ -57,7 +57,7 @@ La gerencia de tecnología de DataCo ha definido los siguientes requerimientos q
 
 * SAP On-premise no tiene API REST disponible. La integración debe hacerse mediante archivos exportados (CSV o JSON) depositados en una carpeta de red compartida o enviados por SFTP.
 
-* El presupuesto mensual en Azure no debe superar los $80 USD durante la fase piloto. Databricks Community Edition puede usarse de forma gratuita para el procesamiento.
+* El presupuesto mensual en Azure no debe superar los $80 USD durante la fase piloto. Databricks Premium puede usarse para el procesamiento monitoreando no pasarse de el presupuesto.
 
 * Los datos de ventas contienen información sensible de precios y márgenes por cliente. El acceso al almacén de datos debe estar restringido por roles.
 
@@ -141,9 +141,9 @@ En el diagrama de contenedores se aprecia como Azure Data Lake Storage Gen2 act�
 La integración técnica de este almacenamiento permite un ciclo de procesamiento fundamental donde Azure Databricks extrae los archivos en bruto para ejecutar notebooks de limpieza y estandarización, devolviendo posteriormente la información enriquecida en formato Parquet a una zona refinada. Esta arquitectura de capas no solo optimiza el rendimiento de las consultas analíticas que alimentan a Azure SQL Database, sino que también garantiza al Auditor la trazabilidad necesaria para validar cada transformación según las políticas de gobierno de datos de DataCo. De este modo, el sistema asegura que los activos de información sean confiables, escalables y estén listos para la toma de decisiones estratégicas.
 
 ### Contenedor de Procesamiento y Transformación con Azure Databricks
-Azure Databricks se encarga de la transformación del pipeline de DataCo. Se ejecuta en Community Edition y es activado por Azure Data Factory mediante un trigger que inicia la ejecución de los notebooks de limpieza, estandarización y enriquecimiento de datos en Apache Spark.
+Azure Databricks se encarga de la transformación del pipeline de DataCo. Se ejecuta y es activado por Azure Data Factory mediante un trigger que inicia la ejecución de los notebooks de limpieza, estandarización y enriquecimiento de datos en Apache Spark.
 
-Se relaciona directamente con Data Lake Storage Gen2 en ambas direcciones: primero, desde la zona raw lee los archivos CSV/JSON crudos y escribe los datos transformados en formato Parquet en la zona curated. Este formato mejora el rendimiento de las consultas siguientes. Luego de completar las transformaciones Databricks carga los datos procesados (tablas) directamente en Azure SQL Database, donde quedan disponibles para ser consultados por Power BI.
+Se relaciona directamente con Data Lake Storage Gen2 en ambas direcciones: primero, desde la zona raw lee y sube los archivos CSV/JSON crudos y escribe los datos transformados en formato Parquet en la zona curated. Este formato mejora el rendimiento de las consultas siguientes. Luego de completar las transformaciones Databricks carga los datos procesados (tablas) directamente en Azure SQL Database, donde quedan disponibles para ser consultados por Power BI.
 
 
 ### Contenedor de Almacén Analítico en Azure SQL Database
@@ -210,14 +210,14 @@ La seguridad y el gobierno de los datos son gestionados de forma transversal por
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 5:</b> System Component Diagram.</i>
+      <i><b>Figure 5:</b> Azure Databricks Component Diagram.</i>
     </figcaption>
   </figure>
 </div>
 
-El diagrama C3 muestra los componentes internos de Azure Databricks dentro de DataCo. Azure Data Factory inicia el proceso y `ingest_sap.py` lee los archivos CSV y JSON almacenados en la zona raw del Data Lake. Luego `clean_inventory.py` limpia y estandariza los datos, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para mejorar la trazabilidad de las entregas.
+El diagrama C3 muestra los componentes internos de Azure Databricks Premium dentro de DataCo. Azure Data Factory inicia el proceso invocando los notebooks de forma modular, y `ingest_sap.py` sube y lee los archivos CSV/JSON al Storage Account del Data Lake en la zona raw/bronze. Luego `clean_inventory.py` limpia y estandariza los datos eliminando duplicados y normalizando fechas y códigos de producto entre SAP y Oracle, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para resolver la falta de trazabilidad entre facturas y entregas reales.
 
-Para finalizar el proceso `load_warehouse.py` guarda los datos procesados en formato Parquet en la zona curated del Data Lake y los carga en Azure SQL Database. Esta arquitectura automatiza la consolidación y transformación de la información, dejando los datos listos para análisis y visualización en Microsoft Power BI Desktop.
+Para finalizar el proceso, `load_warehouse.py` guarda los datos procesados en formato Parquet en la zona curated/gold del Data Lake y los carga en Azure SQL Database mediante autenticación IAM. Esta arquitectura modular automatiza la consolidación y transformación de la información, dejando los datos listos para análisis y visualización en Power BI Desktop.
 
 ---
 
