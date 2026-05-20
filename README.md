@@ -298,6 +298,51 @@ También se incluyen vistas analíticas, stored procedures, auditoría y gobiern
 Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Connector para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
 
 ---
+### Evidencias 
+
+### Azure Data Factory
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adf/evidencia1_adf.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 1:</b> Azure Data Factory conexion.</i>
+    </figcaption>
+  </figure>
+</div>
+
+En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en modo debug y el resultado fue exitoso que se puede ver el estado "Succeeded" y los primeros detalles de las actividades en el panel inferior
+
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adf/evidencia2_adf.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 2:</b> Azure Data Factory conexion.</i>
+    </figcaption>
+  </figure>
+</div>
+
+Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la cadena secuencial de 7 actividades:  donde arranco con NB-1 Bronze, espero con Wait 1, proceso NB-2 Silver, espero con Wait 2, proceso NB-3 Gold, espero con Wait 3, y finalizo con NB-4 To SQL. Todo corrió exitosamente
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adf/evidencia3_adf.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 3:</b> Azure Data Factory conexion.</i>
+    </figcaption>
+  </figure>
+</div>
+
+Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecuté en el pipeline, todas con estado exitoso. Las actividades Web corresponden a los notebooks de cada capa (Bronze, Silver, Gold y To SQL) y me tomaron entre 5 y 13 segundos cada una, mientras que las tres actividades Wait introdujeron pausas de 1 minuto entre notebook y notebook
+
+---
 
 ### Architectural Decision Records (ADRs)
 
