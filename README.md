@@ -355,7 +355,7 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
 
 <div align="center">
   <figure>
-    <img src="assets/implementation_screens/bi/Evidencia1_bi.png" 
+    <img src="assets/implementation_screens/bi/Evidencia1_bi.png.jpeg" 
          width="85%">
     <figcaption>
       <br>
@@ -368,7 +368,7 @@ En Power BI se realizó la conexión y carga de datos para crear un dashboard in
 
 div align="center">
   <figure>
-    <img src="assets/implementation_screens/bi/Evidencia2_bi.png" 
+    <img src="assets/implementation_screens/bi/Evidencia2_bi.png.jpeg" 
          width="85%">
     <figcaption>
       <br>
