@@ -352,3 +352,29 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
 * [ADR-04: Azure SQL Database vs Azure Cosmos DB para el almacén analítico final](assets/adrs/adr-04.md)
 * [ADR-05: Power BI Desktop vs Azure Analysis Services para la capa de visualización](assets/adrs/adr-05.md)
 
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/bi/evidencia1_bi.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 1:</b> Power BI Desktop.</i>
+    </figcaption>
+  </figure>
+</div>
+
+En Power BI se realizó la conexión y carga de datos para crear un dashboard interactivo, donde se visualizaron métricas como el total de productos, cantidades por mes y análisis de datos mediante gráficos y filtros dinámicos. Además, se organizaron las tablas para facilitar el análisis de la información y mejorar la visualización de los datos.
+
+div align="center">
+  <figure>
+    <img src="assets/implementation_screens/bi/evidencia2_bi.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 2:</b> Power BI Informe.</i>
+    </figcaption>
+  </figure>
+</div>
+
+En el servicio de Power BI se realizó el montaje y publicación del modelo de datos, permitiendo visualizar las tablas cargadas dentro del área de trabajo. Esto facilitó la administración de la información y dejó listo el entorno para la creación y actualización de reportes interactivos.
