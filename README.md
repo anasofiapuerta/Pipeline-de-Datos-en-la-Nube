@@ -283,7 +283,7 @@ El flujo comienza con la ingesta y transformación: Azure Data Factory extrae da
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 5:</b> System Component Diagram.</i>
+      <i><b>Figure 7:</b> System Component Diagram.</i>
     </figcaption>
   </figure>
 </div>
@@ -298,7 +298,18 @@ También se incluyen vistas analíticas, stored procedures, auditoría y gobiern
 Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Connector para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
 
 ---
-### Evidencias 
+
+### Architectural Decision Records (ADRs)
+
+* [ADR-01: Azure Data Factory vs Azure Logic Apps para la orquestación del pipeline](assets/adrs/adr-01.md)
+* [ADR-02: Azure Databricks vs Azure Synapse Analytics para la transformación de datos](assets/adrs/adr-02.md)
+* [ADR-03: Data Lake Storage Gen2 vs Blob Storage estándar como almacenamiento raw](assets/adrs/adr-03.md)
+* [ADR-04: Azure SQL Database vs Azure Cosmos DB para el almacén analítico final](assets/adrs/adr-04.md)
+* [ADR-05: Power BI Desktop vs Azure Analysis Services para la capa de visualización](assets/adrs/adr-05.md)
+
+---
+
+### Evidencias de Implementación
 
 ### Azure Data Factory
 
@@ -308,7 +319,7 @@ Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Co
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 1:</b> Azure Data Factory conexion.</i>
+      <i><b>Figure 8:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
 </div>
@@ -322,12 +333,13 @@ En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en mod
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 2:</b> Azure Data Factory conexion.</i>
+      <i><b>Figure 9:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
 </div>
 
 Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la cadena secuencial de 7 actividades:  donde arranco con NB-1 Bronze, espero con Wait 1, proceso NB-2 Silver, espero con Wait 2, proceso NB-3 Gold, espero con Wait 3, y finalizo con NB-4 To SQL. Todo corrió exitosamente
+
 
 <div align="center">
   <figure>
@@ -335,7 +347,7 @@ Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la ca
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 3:</b> Azure Data Factory conexion.</i>
+      <i><b>Figure 10:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
 </div>
@@ -344,17 +356,37 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
 
 ---
 
-### Architectural Decision Records (ADRs)
+### Azure Databricks
 
-* [ADR-01: Azure Data Factory vs Azure Logic Apps para la orquestación del pipeline](assets/adrs/adr-01.md)
-* [ADR-02: Azure Databricks vs Azure Synapse Analytics para la transformación de datos](assets/adrs/adr-02.md)
-* [ADR-03: Data Lake Storage Gen2 vs Blob Storage estándar como almacenamiento raw](assets/adrs/adr-03.md)
-* [ADR-04: Azure SQL Database vs Azure Cosmos DB para el almacén analítico final](assets/adrs/adr-04.md)
-* [ADR-05: Power BI Desktop vs Azure Analysis Services para la capa de visualización](assets/adrs/adr-05.md)
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adb/evidencia1_adb.jpeg" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 11:</b> Azure Databricks Workspace.</i>
+    </figcaption>
+  </figure>
+</div>
+
+En el workspace de `dataco` en Azure Databricks Premium muestra los cuatro notebooks del pipeline creados y listos para ejecutarse: `clean_inventory.py`, `enrich_deliveries.py`, `ingest_sap.py` y `load_warehouse.py`, todos bajo la autoría del equipo y alojados en el clúster `db-insightpipeline-centralcanada-001`.
+
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adb/evidencia2_adb.jpeg" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 12:</b>Ejecución exitosa de los notebooks via ADF</i>
+    </figcaption>
+  </figure>
+</div>
+
+En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones del 19 de mayo de 2026 invocadas por Azure Data Factory mediante API
+(`By runs submit API`). Los cuatro jobs del pipeline se ejecutaron de forma modular y en secuencia con estado **Succeeded**. Esta ejecución corresponde al pipeline `Insight_Pipeline` documentado, donde ADF orquestó el llamado a cada notebook de forma independiente a través de actividades web.
 
 ---
-
-### Evidencias 
 
 ### Power BI
 
