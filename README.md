@@ -387,6 +387,48 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
 (`By runs submit API`). Los cuatro jobs del pipeline se ejecutaron de forma modular y en secuencia con estado **Succeeded**. Esta ejecución corresponde al pipeline `Insight_Pipeline` documentado, donde ADF orquestó el llamado a cada notebook de forma independiente a través de actividades web.
 
 ---
+### Azure SQL Database 
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/asql/evidencia1_asql.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 13:</b>Configuración de Azure SQL Database</i>
+    </figcaption>
+  </figure>
+</div>
+
+El comando `az sql server create` crea un servidor lógico en Azure SQL Database, que actúa como contenedor central para las bases de datos del sistema. Define el nombre único del servidor (`$SQL_SERVER_NAME`), lo asigna al grupo de recursos (`$RESOURCE_GROUP`), establece su ubicación geográfica (`$LOCATION`) y configura el usuario administrador (`$ADMIN_USER`) con su contraseña (`$ADMIN_PASSWORD`). Este servidor alojará posteriormente bases de datos como `db-insightpipeline` con las tablas del esquema `dw` para el pipeline analítico.
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/asql/evidencia2_asql.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 14:</b>Creación de la Base de Datos en Azure SQL</i>
+    </figcaption>
+  </figure>
+</div>
+
+ El comando `az sql db create` crea la base de datos analítica dentro del servidor ya configurado. Define el nombre de la base (`$SQL_DB_NAME`), usa el nivel **General Purpose** con modo **Serverless** para escalado automático y pago por uso, asigna **1 vCore** Gen5, pausa automática tras **60 minutos** de inactividad para ahorrar costos, y establece la colación `SQL_Latin1_General_CP1_CI_AS`. Esta base alojará las tablas del esquema `dw` (`fact_sales`, `dim_products`) que alimentarán los dashboards de Power BI.
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/asql/evidencia3_asql.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 15:</b>Configuración de Firewall para Azure SQL Database</i>
+    </figcaption>
+  </figure>
+</div>
+
+El comando crea una regla de firewall que permite el acceso al servidor SQL desde una máquina virtual específica (IP `52.138.30.9`). La regla, llamada "AzureVM", abre la conectividad exclusivamente para esa IP, garantizando que el sistema solo pueda ser accedido desde recursos autorizados, como la máquina virtual de desarrollo o procesos ETL en Databricks, reforzando la seguridad del data warehouse.
+
+---
 
 ### Power BI
 
