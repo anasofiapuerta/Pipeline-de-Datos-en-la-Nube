@@ -6,6 +6,7 @@
 | 01  |Ana Sofia Puerta| Creación de documento            | 02-05-2026 |
 | 02  | Ana Sofia Puerta, Ximena Gaibao, Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación del diagrama de C1 | 05-05-2026 |
 | 03 | Ana Sofia Puerta, Ximena Gaibao, Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación de ADRs | 07-05-2026 |
+| 04 | Ana Sofia Puerta, Ximena Gaibao, Jhosep Tabares, Yoseth lloreda, Oscar Uñates| Incorporación de Evidencias de Implementación | 19-05-2026 |
 
 ---
 
@@ -356,6 +357,36 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
 
 ---
 
+### Azure Data Lake Storage Gen2
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adl/evidencia1_adl.png"
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 11:</b> Azure Data Lake Storage Gen2 Medallion Architecture</i>
+    </figcaption>
+  </figure>
+</div>
+
+La arquitectura medallón en Azure Data Lake compuesta de 3 niveles. El primer nivel `Bronze` guardará los datos de las fuentes en bruto, el segundo nivel `Silver` persistirá los datos unificados y limpios y el tercer nivel `Gold` almacenará los datos enriquecidos y transformados los cuales serán cargados posteriormente a la base de datos.
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adl/evidencia2_adl.png"
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 12:</b> Azure Data Lake Storage Gen2 Contenido del Nivel Gold</i>
+    </figcaption>
+  </figure>
+</div>
+
+Una vez Data Factory ha invocado la ejecucion de los Spark Notebooks en el cluster de Databricks, los datos se consignan segun el orden de ejecucion en cada uno de los niveles de Data Lake, desde la ingesta desde las fuentes hasta la consolidacion de la informacion.
+
+---
+
 ### Azure Databricks
 
 <div align="center">
@@ -364,7 +395,7 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 11:</b> Azure Databricks Workspace.</i>
+      <i><b>Figure 13:</b> Azure Databricks Workspace.</i>
     </figcaption>
   </figure>
 </div>
@@ -378,7 +409,7 @@ En el workspace de `dataco` en Azure Databricks Premium muestra los cuatro noteb
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 12:</b>Ejecución exitosa de los notebooks via ADF</i>
+      <i><b>Figure 14:</b>Ejecución exitosa de los notebooks via ADF</i>
     </figcaption>
   </figure>
 </div>
@@ -395,7 +426,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 13:</b>Configuración de Azure SQL Database</i>
+      <i><b>Figure 15:</b>Configuración de Azure SQL Database</i>
     </figcaption>
   </figure>
 </div>
@@ -408,7 +439,7 @@ El comando `az sql server create` crea un servidor lógico en Azure SQL Database
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 14:</b>Creación de la Base de Datos en Azure SQL</i>
+      <i><b>Figure 16:</b>Creación de la Base de Datos en Azure SQL</i>
     </figcaption>
   </figure>
 </div>
@@ -421,7 +452,7 @@ El comando `az sql server create` crea un servidor lógico en Azure SQL Database
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 15:</b>Configuración de Firewall para Azure SQL Database</i>
+      <i><b>Figure 17:</b>Configuración de Firewall para Azure SQL Database</i>
     </figcaption>
   </figure>
 </div>
@@ -439,7 +470,7 @@ El comando crea una regla de firewall que permite el acceso al servidor SQL desd
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 1:</b> Power BI Desktop.</i>
+      <i><b>Figure 18:</b> Power BI Desktop.</i>
     </figcaption>
   </figure>
 </div>
@@ -452,7 +483,7 @@ En Power BI se realizó la conexión y carga de datos para crear un dashboard in
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 2:</b> Power BI Informe.</i>
+      <i><b>Figure 19:</b> Power BI Informe.</i>
     </figcaption>
   </figure>
 </div>
