@@ -432,7 +432,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
   </figure>
 </div>
 
-El  comando `SELECT * FROM dw.fact_deliveries`, confirmando que la tabla `fact_deliveries` ya existe en el esquema `dw` de la base de datos `db-insightpipeline`. Los resultados evidencian los registros con información de entregas, incluyendo identificadores, fechas de entrega, estado "Entregado" y coordenadas geográficas (latitud/longitud). Esto demuestra que la base de datos está correctamente configurada y contiene datos reales, validando que el sistema de gestión de entregas está operativo y almacenando información geoespacial que podrá ser analizada desde Databricks o visualizada en Power BI.
+El  comando `SELECT * FROM dw.fact_deliveries`, confirmando que la tabla `fact_deliveries` ya existe en el esquema `dw` de la base de datos `db-insightpipeline`. Los resultados evidencian los registros con información de entregas, incluyendo identificadores, fechas de entrega, estado "Entregado" y coordenadas geográficas latitud y longitud. Esto demuestra que la base de datos está correctamente configurada y contiene datos reales, validando que el sistema de gestión de entregas está operativo y almacenando información geoespacial que podrá ser analizada desde Databricks o visualizada en Power BI.
 
 <div align="center">
   <figure>
