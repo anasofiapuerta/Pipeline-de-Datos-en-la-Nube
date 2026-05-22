@@ -418,6 +418,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
 (`By runs submit API`). Los cuatro jobs del pipeline se ejecutaron de forma modular y en secuencia con estado **Succeeded**. Esta ejecución corresponde al pipeline `Insight_Pipeline` documentado, donde ADF orquestó el llamado a cada notebook de forma independiente a través de actividades web.
 
 ---
+
 ### Azure SQL Database 
 
 <div align="center">
@@ -426,12 +427,12 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 15:</b>Configuración de Azure SQL Database</i>
+      <i><b>Figure 15:</b>Resultado de la Consulta en Azure SQL Database</i>
     </figcaption>
   </figure>
 </div>
 
-El comando `az sql server create` crea un servidor lógico en Azure SQL Database, que actúa como contenedor central para las bases de datos del sistema. Define el nombre único del servidor (`$SQL_SERVER_NAME`), lo asigna al grupo de recursos (`$RESOURCE_GROUP`), establece su ubicación geográfica (`$LOCATION`) y configura el usuario administrador (`$ADMIN_USER`) con su contraseña (`$ADMIN_PASSWORD`). Este servidor alojará posteriormente bases de datos como `db-insightpipeline` con las tablas del esquema `dw` para el pipeline analítico.
+El  comando `SELECT * FROM dw.fact_deliveries`, confirmando que la tabla `fact_deliveries` ya existe en el esquema `dw` de la base de datos `db-insightpipeline`. Los resultados evidencian los registros con información de entregas, incluyendo identificadores, fechas de entrega, estado "Entregado" y coordenadas geográficas (latitud/longitud). Esto demuestra que la base de datos está correctamente configurada y contiene datos reales, validando que el sistema de gestión de entregas está operativo y almacenando información geoespacial que podrá ser analizada desde Databricks o visualizada en Power BI.
 
 <div align="center">
   <figure>
@@ -439,25 +440,12 @@ El comando `az sql server create` crea un servidor lógico en Azure SQL Database
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 16:</b>Creación de la Base de Datos en Azure SQL</i>
+      <i><b>Figure 16:</b>Consulta de Verificación en Azure SQL Database</i>
     </figcaption>
   </figure>
 </div>
 
- El comando `az sql db create` crea la base de datos analítica dentro del servidor ya configurado. Define el nombre de la base (`$SQL_DB_NAME`), usa el nivel **General Purpose** con modo **Serverless** para escalado automático y pago por uso, asigna **1 vCore** Gen5, pausa automática tras **60 minutos** de inactividad para ahorrar costos, y establece la colación `SQL_Latin1_General_CP1_CI_AS`. Esta base alojará las tablas del esquema `dw` (`fact_sales`, `dim_products`) que alimentarán los dashboards de Power BI.
-
-<div align="center">
-  <figure>
-    <img src="assets/implementation_screens/asql/evidencia3_asql.png" 
-         width="85%">
-    <figcaption>
-      <br>
-      <i><b>Figure 17:</b>Configuración de Firewall para Azure SQL Database</i>
-    </figcaption>
-  </figure>
-</div>
-
-El comando crea una regla de firewall que permite el acceso al servidor SQL desde una máquina virtual específica (IP `52.138.30.9`). La regla, llamada "AzureVM", abre la conectividad exclusivamente para esa IP, garantizando que el sistema solo pueda ser accedido desde recursos autorizados, como la máquina virtual de desarrollo o procesos ETL en Databricks, reforzando la seguridad del data warehouse.
+El comando `SELECT sale_fk, delivery_id FROM dw.fact_deliveries`, confirmando que la tabla `fact_deliveries` está correctamente poblada con datos válidos. Los resultados evidencian que los campos `sale_fk` y `delivery_id` contienen valores numéricos consistentes, demostrando que la base de datos `db-insightpipeline` está operativa.
 
 ---
 
