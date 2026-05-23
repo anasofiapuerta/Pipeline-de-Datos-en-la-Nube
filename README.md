@@ -80,7 +80,7 @@ El diagrama de contexto muestra una visión general del Pipeline de datos de Dat
          alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 1:</b> System Context Diagram.</i>
     </figcaption>
   </figure>
@@ -128,7 +128,7 @@ El diagrama de contenedores permite hacer un "zoom" dentro del límite del siste
          alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 2:</b> Containers Diagram.</i>
     </figcaption>
   </figure>
@@ -174,7 +174,7 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
     <img src="assets/c4_model/final/c3_adf_final.drawio.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 3:</b> Azure Data Factory.</i>
     </figcaption>
   </figure>
@@ -200,7 +200,7 @@ Tres perfiles interactúan con el sistema: el Analista de Power BI que construye
          alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 4:</b> Azure Data Lake Gen2 Component Diagram.</i>
     </figcaption>
   </figure>
@@ -219,7 +219,7 @@ La seguridad y el gobierno de los datos son gestionados de forma transversal por
     <img src="assets/c4_model/final/c3_databricks_final.drawio.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 5:</b> Azure Databricks Component Diagram.</i>
     </figcaption>
   </figure>
@@ -241,7 +241,7 @@ Para finalizar el proceso, `load_warehouse.py` guarda los datos procesados en fo
          alt="System Component Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 6:</b> System Component Diagram.</i>
     </figcaption>
   </figure>
@@ -294,7 +294,7 @@ El flujo comienza con la ingesta y transformación: Azure Data Factory extrae da
     <img src="assets/c4_model/final/c3_powerbi_final.drawio.png"
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 7:</b> System Component Diagram.</i>
     </figcaption>
   </figure>
@@ -330,7 +330,7 @@ Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Co
     <img src="assets/arch/infra_arch.png"
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 8:</b> Infrastructure Architecture.</i>
     </figcaption>
   </figure>
@@ -359,7 +359,7 @@ En este punto, Power BI Service realiza su conexión con el motor de base de dat
     <img src="assets/implementation_screens/adf/evidencia1_adf.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 9:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
@@ -374,7 +374,7 @@ En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en mod
     <img src="assets/implementation_screens/adf/evidencia2_adf.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 10:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
@@ -389,7 +389,7 @@ Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la ca
     <img src="assets/implementation_screens/adf/evidencia3_adf.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 11:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
@@ -408,7 +408,7 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
     <img src="assets/implementation_screens/adl/evidencia1_adl.png"
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 12:</b> Azure Data Lake Storage Gen2 Medallion Architecture</i>
     </figcaption>
   </figure>
@@ -423,7 +423,7 @@ La arquitectura medallón en Azure Data Lake compuesta de 3 niveles. El primer n
     <img src="assets/implementation_screens/adl/evidencia2_adl.png"
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 13:</b> Azure Data Lake Storage Gen2 Contenido del Nivel Gold</i>
     </figcaption>
   </figure>
@@ -442,7 +442,7 @@ Una vez Data Factory ha invocado la ejecucion de los Spark Notebooks en el clust
     <img src="assets/implementation_screens/adb/evidencia1_adb.jpeg" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 14:</b> Azure Databricks Workspace.</i>
     </figcaption>
   </figure>
@@ -457,7 +457,7 @@ En el workspace de `dataco` en Azure Databricks Premium muestra los cuatro noteb
     <img src="assets/implementation_screens/adb/evidencia2_adb.jpeg" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 15:</b>Ejecución exitosa de los notebooks via ADF</i>
     </figcaption>
   </figure>
@@ -477,7 +477,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
     <img src="assets/implementation_screens/asql/evidencia1_asql.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 16:</b>Resultado de la Consulta en Azure SQL Database</i>
     </figcaption>
   </figure>
@@ -492,7 +492,7 @@ El  comando `SELECT * FROM dw.fact_deliveries`, confirmando que la tabla `fact_d
     <img src="assets/implementation_screens/asql/evidencia2_asql.png" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 17:</b>Consulta de Verificación en Azure SQL Database</i>
     </figcaption>
   </figure>
@@ -511,7 +511,7 @@ El comando `SELECT sale_fk, delivery_id FROM dw.fact_deliveries`, confirmando qu
     <img src="assets/implementation_screens/bi/Evidencia1_bi.png.jpeg" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 18:</b> Power BI Desktop.</i>
     </figcaption>
   </figure>
@@ -526,7 +526,7 @@ En Power BI se realizó la conexión y carga de datos para crear un dashboard in
     <img src="assets/implementation_screens/bi/Evidencia2_bi.png.jpeg" 
          width="85%">
     <figcaption>
-      <br>
+      <br><br>
       <i><b>Figure 19:</b> Power BI Informe.</i>
     </figcaption>
   </figure>
