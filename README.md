@@ -73,6 +73,7 @@ La gerencia de tecnología de DataCo ha definido los siguientes requerimientos q
 ### Diagrama de Contexto (C1)
 El diagrama de contexto muestra una visión general del Pipeline de datos de DataCo como una caja negra, identificar sus roles principales y los sistemas externos con los que se relaciona (SAP, Oracle, GPS, Salesforce, Power BI).
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c1_final.drawio.png" 
@@ -120,6 +121,7 @@ Todos envían la información hacia el sistema Pipeline.
 ### Diagrama de Contenedores (C2)
 El diagrama de contenedores permite hacer un "zoom" dentro del límite del sistema InsightPipeline para desglosar la arquitectura de software en sus aplicaciones y almacenes de datos individuales. En esta vista se detallan las responsabilidades distribuidas, las elecciones tecnológicas clave y cómo estos componentes se comunican entre sí para cumplir con los requerimientos de procesamiento y latencia de DataCo.
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c2_final.drawio.png" 
@@ -166,6 +168,7 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 
 ### Componentes del Contenedor Azure Data Factory
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_adf_final.drawio.png" 
@@ -190,6 +193,7 @@ Tres perfiles interactúan con el sistema: el Analista de Power BI que construye
 
 ### Componentes del Contenedor Azure Data Lake Storage Gen2
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_adl_final.drawio.png" 
@@ -208,6 +212,8 @@ El diagrama representa la arquitectura interna del contenedor Azure Data Lake St
 La seguridad y el gobierno de los datos son gestionados de forma transversal por el componente Access Control Manager, el cual aplica políticas de permisos granulares (POSIX ACLs) sobre cada capa para proteger la información sensible de precios y márgenes. Simultáneamente, todas las operaciones de transformación realizadas por Databricks quedan registradas en el Audit & Telemetry Store mediante logs en formato JSON, permitiendo al Auditor verificar la trazabilidad completa del pipeline y asegurar el cumplimiento de los estándares de calidad exigidos por el negocio.
 
 ### Componentes del Contenedor Azure Databricks
+
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_databricks_final.drawio.png" 
@@ -226,7 +232,9 @@ Para finalizar el proceso, `load_warehouse.py` guarda los datos procesados en fo
 
 ---
 
-### Componentes del Contenedor Azure SQL Datebase 
+### Componentes del Contenedor Azure SQL Datebase
+
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_sql_final.drawio.png" 
@@ -279,6 +287,8 @@ La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pas
 El flujo comienza con la ingesta y transformación: Azure Data Factory extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista Power BI conecta su dashboard mediante JDBC/T‑SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en Power BI sin acceder directamente a las tablas base.
 
 ### Componentes del Contenedor Power BI
+
+<br>
 <div align="center">
   <figure>
     <img src="assets/c4_model/final/c3_powerbi_final.drawio.png"
@@ -313,6 +323,8 @@ Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Co
 ---
 
 ### Arquitectura de la Infraestructura
+
+<br>
 <div align="center">
   <figure>
     <img src="assets/arch/infra_arch.png"
@@ -341,6 +353,7 @@ En este punto, Power BI Service realiza su conexión con el motor de base de dat
 
 ### Azure Data Factory
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adf/evidencia1_adf.png" 
@@ -355,7 +368,7 @@ En este punto, Power BI Service realiza su conexión con el motor de base de dat
 
 En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en modo debug y el resultado fue exitoso que se puede ver el estado "Succeeded" y los primeros detalles de las actividades en el panel inferior
 
-
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adf/evidencia2_adf.png" 
@@ -370,7 +383,7 @@ En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en mod
 
 Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la cadena secuencial de 7 actividades:  donde arranco con NB-1 Bronze, espero con Wait 1, proceso NB-2 Silver, espero con Wait 2, proceso NB-3 Gold, espero con Wait 3, y finalizo con NB-4 To SQL. Todo corrió exitosamente
 
-
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adf/evidencia3_adf.png" 
@@ -389,6 +402,7 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
 
 ### Azure Data Lake Storage Gen2
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adl/evidencia1_adl.png"
@@ -403,6 +417,7 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
 
 La arquitectura medallón en Azure Data Lake compuesta de 3 niveles. El primer nivel `Bronze` guardará los datos de las fuentes en bruto, el segundo nivel `Silver` persistirá los datos unificados y limpios y el tercer nivel `Gold` almacenará los datos enriquecidos y transformados los cuales serán cargados posteriormente a la base de datos.
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adl/evidencia2_adl.png"
@@ -421,6 +436,7 @@ Una vez Data Factory ha invocado la ejecucion de los Spark Notebooks en el clust
 
 ### Azure Databricks
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adb/evidencia1_adb.jpeg" 
@@ -435,7 +451,7 @@ Una vez Data Factory ha invocado la ejecucion de los Spark Notebooks en el clust
 
 En el workspace de `dataco` en Azure Databricks Premium muestra los cuatro notebooks del pipeline creados y listos para ejecutarse: `clean_inventory.py`, `enrich_deliveries.py`, `ingest_sap.py` y `load_warehouse.py`, todos bajo la autoría del equipo y alojados en el clúster `db-insightpipeline-centralcanada-001`.
 
-
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/adb/evidencia2_adb.jpeg" 
@@ -455,6 +471,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
 
 ### Azure SQL Database 
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/asql/evidencia1_asql.png" 
@@ -469,6 +486,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
 
 El  comando `SELECT * FROM dw.fact_deliveries`, confirmando que la tabla `fact_deliveries` ya existe en el esquema `dw` de la base de datos `db-insightpipeline`. Los resultados evidencian los registros con información de entregas, incluyendo identificadores, fechas de entrega, estado "Entregado" y coordenadas geográficas latitud y longitud. Esto demuestra que la base de datos está correctamente configurada y contiene datos reales, validando que el sistema de gestión de entregas está operativo y almacenando información geoespacial que podrá ser analizada desde Databricks o visualizada en Power BI.
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/asql/evidencia2_asql.png" 
@@ -487,6 +505,7 @@ El comando `SELECT sale_fk, delivery_id FROM dw.fact_deliveries`, confirmando qu
 
 ### Power BI
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/bi/Evidencia1_bi.png.jpeg" 
@@ -501,6 +520,7 @@ El comando `SELECT sale_fk, delivery_id FROM dw.fact_deliveries`, confirmando qu
 
 En Power BI se realizó la conexión y carga de datos para crear un dashboard interactivo, donde se visualizaron métricas como el total de productos, cantidades por mes y análisis de datos mediante gráficos y filtros dinámicos. Además, se organizaron las tablas para facilitar el análisis de la información y mejorar la visualización de los datos.
 
+<br>
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/bi/Evidencia2_bi.png.jpeg" 
