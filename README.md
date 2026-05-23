@@ -312,6 +312,31 @@ Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Co
 
 ---
 
+### Arquitectura de la Infraestructura
+<div align="center">
+  <figure>
+    <img src="assets/arch/infra_arch.png"
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 8:</b> Infrastructure Architecture.</i>
+    </figcaption>
+  </figure>
+</div>
+<br>
+
+La arquitectura se compone de seis servicios en total: Data Factories, Data Lake Storage Gen2, Databricks, SQL Server, VM y Power BI. El linaje de los datos parte de cuatro fuentes que proveen información semiestructurada en formatos CSV y JSON. Una vez que estos han llegado a la zona de *bronze* (zona de aterrizaje) en el Data Lake, el servicio Data Factories activa el flujo de carga y procesamiento de los datos en el clúster *Serverless* de Databricks, invocando uno por uno los *Python Spark Notebooks* que transformarán e integrarán los datos en un único modelo. 
+
+Este proceso consta de cuatro pasos principales:
+1. Ocurre la ingesta desde la zona de *bronze* del Data Lake.
+2. Se ejecuta la limpieza y se almacenan los resultados en la zona de *silver* para garantizar la auditoría de los históricos.
+3. Se enriquecen e integran en un solo modelo que, finalmente, es consignado en la zona de *gold* del Data Lake.
+4. Se transfiere de forma estructurada a SQL Server para su procesamiento y peticionado. 
+
+En este punto, Power BI Service realiza su conexión con el motor de base de datos para solicitar la información que el *dashboard* configurado necesita para concluir sus métricas y actualizar la vista accesible. Esta última puede ser modificada al detalle y republicada mediante la aplicación Power BI Desktop, la cual está instalada en una VM con Windows 11 para el uso de la compañía.
+
+---
+
 ### Evidencias de Implementación
 
 ### Azure Data Factory
@@ -322,7 +347,7 @@ Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Co
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 8:</b> Azure Data Factory conexion.</i>
+      <i><b>Figure 9:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
 </div>
@@ -337,7 +362,7 @@ En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en mod
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 9:</b> Azure Data Factory conexion.</i>
+      <i><b>Figure 10:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
 </div>
@@ -352,7 +377,7 @@ Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la ca
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 10:</b> Azure Data Factory conexion.</i>
+      <i><b>Figure 11:</b> Azure Data Factory conexion.</i>
     </figcaption>
   </figure>
 </div>
@@ -370,7 +395,7 @@ Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecu
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 11:</b> Azure Data Lake Storage Gen2 Medallion Architecture</i>
+      <i><b>Figure 12:</b> Azure Data Lake Storage Gen2 Medallion Architecture</i>
     </figcaption>
   </figure>
 </div>
@@ -384,7 +409,7 @@ La arquitectura medallón en Azure Data Lake compuesta de 3 niveles. El primer n
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 12:</b> Azure Data Lake Storage Gen2 Contenido del Nivel Gold</i>
+      <i><b>Figure 13:</b> Azure Data Lake Storage Gen2 Contenido del Nivel Gold</i>
     </figcaption>
   </figure>
 </div>
@@ -402,7 +427,7 @@ Una vez Data Factory ha invocado la ejecucion de los Spark Notebooks en el clust
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 13:</b> Azure Databricks Workspace.</i>
+      <i><b>Figure 14:</b> Azure Databricks Workspace.</i>
     </figcaption>
   </figure>
 </div>
@@ -417,7 +442,7 @@ En el workspace de `dataco` en Azure Databricks Premium muestra los cuatro noteb
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 14:</b>Ejecución exitosa de los notebooks via ADF</i>
+      <i><b>Figure 15:</b>Ejecución exitosa de los notebooks via ADF</i>
     </figcaption>
   </figure>
 </div>
@@ -436,7 +461,7 @@ En la vista **Jobs & Pipelines → Runs** de Databricks muestra las ejecuciones 
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 15:</b>Resultado de la Consulta en Azure SQL Database</i>
+      <i><b>Figure 16:</b>Resultado de la Consulta en Azure SQL Database</i>
     </figcaption>
   </figure>
 </div>
@@ -450,7 +475,7 @@ El  comando `SELECT * FROM dw.fact_deliveries`, confirmando que la tabla `fact_d
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 16:</b>Consulta de Verificación en Azure SQL Database</i>
+      <i><b>Figure 17:</b>Consulta de Verificación en Azure SQL Database</i>
     </figcaption>
   </figure>
 </div>
@@ -462,14 +487,13 @@ El comando `SELECT sale_fk, delivery_id FROM dw.fact_deliveries`, confirmando qu
 
 ### Power BI
 
-
 <div align="center">
   <figure>
     <img src="assets/implementation_screens/bi/Evidencia1_bi.png.jpeg" 
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 17:</b> Power BI Desktop.</i>
+      <i><b>Figure 18:</b> Power BI Desktop.</i>
     </figcaption>
   </figure>
 </div>
@@ -483,7 +507,7 @@ En Power BI se realizó la conexión y carga de datos para crear un dashboard in
          width="85%">
     <figcaption>
       <br>
-      <i><b>Figure 18:</b> Power BI Informe.</i>
+      <i><b>Figure 19:</b> Power BI Informe.</i>
     </figcaption>
   </figure>
 </div>
