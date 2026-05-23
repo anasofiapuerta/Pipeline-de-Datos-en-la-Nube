@@ -206,7 +206,7 @@ La seguridad y el gobierno de los datos son gestionados de forma transversal por
 ### Componentes del Contenedor Azure Databricks
 <div align="center">
   <figure>
-    <img src="assets/c4_model/final/c3_databricks_final.drawio.png" 
+    <img src="assets/c4_model/final/c3_adb_final.drawio.png" 
          width="85%">
     <figcaption>
       <br>
@@ -215,9 +215,9 @@ La seguridad y el gobierno de los datos son gestionados de forma transversal por
   </figure>
 </div>
 
-El diagrama C3 muestra los componentes internos de Azure Databricks Premium dentro de DataCo. Azure Data Factory inicia el proceso invocando los notebooks de forma modular, y `ingest_sap.py` sube y lee los archivos CSV/JSON al Storage Account del Data Lake en la zona raw/bronze. Luego `clean_inventory.py` limpia y estandariza los datos eliminando duplicados y normalizando fechas y códigos de producto entre SAP y Oracle, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para resolver la falta de trazabilidad entre facturas y entregas reales.
+El diagrama muestra los componentes internos de Azure Databricks Premium dentro de DataCo. El Orquestador de Datos inicia el proceso invocando los notebooks de forma modular, y `ingest_sap.py` sube y lee los archivos CSV/JSON al Storage Account del Repositorio de Datos en la zona raw/bronze. Luego `clean_inventory.py` limpia y estandariza los datos eliminando duplicados y normalizando fechas y códigos de producto entre SAP y Oracle, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para resolver la falta de trazabilidad entre facturas y entregas reales,se guardan los datos procesados en formato Parquet en la zona curated/gold del Repositorio de Datos.
 
-Para finalizar el proceso, `load_warehouse.py` guarda los datos procesados en formato Parquet en la zona curated/gold del Data Lake y los carga en Azure SQL Database mediante autenticación IAM. Esta arquitectura modular automatiza la consolidación y transformación de la información, dejando los datos listos para análisis y visualización en Power BI Desktop.
+Para finalizar el proceso, `load_warehouse.py` carga los datos en el Almacén de Datos Analítico mediante autenticación IAM. Esta arquitectura modular automatiza la consolidación y transformación de la información, dejando los datos listos para análisis y visualización en la Capa de Visualizaciónn y Analytics.
 
 ---
 
