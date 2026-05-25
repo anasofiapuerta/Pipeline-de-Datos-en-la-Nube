@@ -181,15 +181,7 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 </div>
 <br>
 
-El sistema integra cuatro fuentes principales: SAP (facturas y pedidos, exporta CSV/SFTP), Oracle Database (stock por bodega, on-premise), Salesforce (visitas y acuerdos comerciales, vía API REST) y GPS (rutas y tiempos de entrega, exportación manual CSV).
-Azure Data Factory como orquestador central
-ADF es el corazón del pipeline. Recibe datos de todas las fuentes mediante distintos mecanismos (CSV local, SFTP, API REST y carga manual) y coordina el flujo completo de información entre todos los sistemas.
-Almacenamiento en Azure SQL Database
-Una vez que ADF transforma los datos, los deposita en una base de datos SQL relacional centralizada, lista para análisis. Esta capa actúa como única fuente de verdad del modelo de datos.
-Visualización en Power BI
-Power BI se conecta directamente a Azure SQL y construye dashboards de ventas, inventario y logística con refresco automático cada 4 horas. El Gerente Comercial consume estos reportes para tomar decisiones de abastecimiento.
-Usuarios y gobierno de datos
-Tres perfiles interactúan con el sistema: el Analista de Power BI que construye los reportes, el Gerente Comercial que los consume para decidir, y el Auditor que verifica trazabilidad y gobierno de datos directamente sobre SQL, monitoreando KPIs de calidad
+El sistema integra cuatro fuentes principales: SAP, Oracle Database, Salesforce y GPS, las cuales envían información al Orquestador del Pipeline de Datos mediante diferentes mecanismos como archivos CSV por SFTP, API REST y cargas manuales en formato CSV. Este orquestador coordina todo el flujo de información e ingesta los datos en el Repositorio de Almacenamiento en Capas (Data Lake), donde la información pasa por distintas etapas, desde un estado crudo conocido como Bronze hasta uno optimizado llamado Gold. Durante este proceso, el Motor de Transformación de Datos realiza tareas de limpieza, transformación y unificación de códigos para asegurar la calidad y consistencia de los datos. Posteriormente, la información procesada se almacena en la Base de Datos Analítica, que funciona como una fuente única de verdad dentro del modelo dimensional, y finalmente el Componente de Inteligencia de Negocio (BI) utiliza estos datos para construir dashboards con actualización automática de métricas, facilitando el análisis y la toma de decisiones dentro de la organización. 
 
 ### Componentes del Contenedor Azure Data Lake Storage Gen2
 
@@ -309,6 +301,55 @@ Después aparecen las tablas de hechos como fact_ventas y fact_entregas, que alm
 También se incluyen vistas analíticas, stored procedures, auditoría y gobierno de datos, los cuales ayudan a automatizar procesos, mantener la calidad de la información y registrar accesos o cambios realizados en el sistema.
 
 Finalmente, Power BI Desktop se conecta a esta estructura mediante SQL Server Connector para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
+
+---
+
+### Evidencias 
+
+### Azure Data Factory
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adf/evidencia1_adf.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 1:</b> Azure Data Factory conexion.</i>
+    </figcaption>
+  </figure>
+</div>
+
+En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en modo debug y el resultado fue exitoso que se puede ver el estado "Succeeded" y los primeros detalles de las actividades en el panel inferior
+
+
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adf/evidencia2_adf.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 2:</b> Azure Data Factory conexion.</i>
+    </figcaption>
+  </figure>
+</div>
+
+Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la cadena secuencial de 7 actividades:  donde arranco con NB-1 Bronze, espero con Wait 1, proceso NB-2 Silver, espero con Wait 2, proceso NB-3 Gold, espero con Wait 3, y finalizo con NB-4 To SQL. Todo corrió exitosamente
+
+
+
+<div align="center">
+  <figure>
+    <img src="assets/implementation_screens/adf/evidencia3_adf.png" 
+         width="85%">
+    <figcaption>
+      <br>
+      <i><b>Figure 3:</b> Azure Data Factory conexion.</i>
+    </figcaption>
+  </figure>
+</div>
+
+Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecuté en el pipeline, todas con estado exitoso. Las actividades Web corresponden a los notebooks de cada capa (Bronze, Silver, Gold y To SQL) y me tomaron entre 5 y 13 segundos cada una, mientras que las tres actividades Wait introdujeron pausas de 1 minuto entre notebook y notebook
 
 ---
 
