@@ -87,26 +87,23 @@ El diagrama de contexto muestra una visión general del Pipeline de datos de Dat
 </div>
 <br>
 
-### Analista de Power BI
-Este rol se encarga de analizar y visualizar los datos del negocio mediante dashboards e informes. Se conecta a Power BI, el cual obtiene la información desde el Pipeline de Datos DataCo, donde previamente se integran y transforman los datos provenientes de sistemas como SAP, Oracle, GPS y Salesforce. De esta manera, el analista no trabaja con datos crudos, sino con información ya limpia y estructurada.
+### Analista de Capa de Visualización y Analytics
+Este rol se encarga de analizar y visualizar los datos del negocio mediante dashboards e informes. Se conecta a la Capa de Visualización y Analytics, la cual obtiene la información desde el Pipeline de Datos DataCo, donde previamente se integran y transforman los datos provenientes de sistemas como SAP, Oracle, GPS y Salesforce. De esta manera, el analista no trabaja con datos crudos, sino con información ya limpia y estructurada.
 
-Dentro del proyecto, su función está en la etapa final del flujo de datos, ya que convierte toda la información procesada en conocimiento útil para el negocio. Sus dashboards y reportes son utilizados por el Gerente Comercial para la toma de decisiones, por lo que actúa como un puente entre los datos técnicos y el uso estratégico de la información
+Dentro del proyecto, su función está en la etapa final del flujo de datos, ya que convierte toda la información procesada en conocimiento útil para el negocio. Sus dashboards y reportes son utilizados por el Gerente Comercial para la toma de decisiones, por lo que actúa como un puente entre los datos técnicos y el uso estratégico de la información.
 
 ### Gerente Comercial
-El gerente comercial toma decisiones estratégicas basadas en información confiable y actualizada, accediendo a dashboards en Power BI donde visualiza indicadores clave del negocio como ventas e inventario.
+El gerente comercial toma decisiones estratégicas basadas en información confiable y actualizada, accediendo a dashboards en la Capa de Visualización y Analytics donde visualiza indicadores clave del negocio como ventas e inventario.
 
-Utiliza datos procesados por el Pipeline de Datos DataCo y almacenados en Azure SQL, los cuales provienen de sistemas como SAP ERP, Oracle Database y Salesforce CRM, para definir acciones comerciales y evaluar el desempeño.
+Utiliza datos procesados por el Pipeline de Datos DataCo y almacenados en el Almacén de Datos Analítico, los cuales provienen de sistemas como SAP ERP, Oracle Database y Salesforce CRM, para definir acciones comerciales y evaluar el desempeño.
 
-### Auditor 
-Este se encarga de garantizar que los datos de la empresa sean confiables y tengan trazabilidad. No consume dashboards de Power BI; su acceso es directo al sistema.
+### Auditor
+Este se encarga de garantizar que los datos de la empresa sean confiables y tengan trazabilidad. No consume dashboards de la Capa de Visualización y Analytics; su acceso es directo al sistema.
 
-**Revisar auditoría** sobre el Pipeline de Datos DataCo, verificando que cada transformación aplicada sobre los datos quede registrada y sea trazable.
-Esto incluye los logs de ejecución de Azure Data Factory y las tablas de auditoría en Azure SQL.
-Este rol es importante para el cumplimiento de las políticas internas de datos de DataCo.
+Revisar auditoría sobre el Pipeline de Datos DataCo, verificando que cada transformación aplicada sobre los datos quede registrada y sea trazable. Esto incluye los logs de ejecución del Orquestador de Datos y las tablas de auditoría en el Almacén de Datos Analítico. Este rol es importante para el cumplimiento de las políticas internas de datos de DataCo.
 
 ### Sistemas externos
-Los sistemas externos son las fuentes de datos que alimentan el pipeline.
-Todos envían la información hacia el sistema Pipeline.
+Los sistemas externos son las fuentes de datos que alimentan el pipeline. Todos envían la información hacia el sistema Pipeline.
 
 **SAP** Es on-premise, sin API. Exporta ventas, pedidos y devoluciones en CSV vía SFTP de forma manual.
 
@@ -116,7 +113,7 @@ Todos envían la información hacia el sistema Pipeline.
 
 **Salesforce** Funciona con API REST. Es el único sistema con integración automática. Contiene información de visitas, acuerdos y cartera.
 
-**Power BI** se conecta a Azure SQL y refresca automáticamente los datos cada 4 horas. Lo usa el Analista de BI para construir reportes y el Gerente Comercial para consultarlos.
+**La Capa de Visualización y Analytics** se conecta al Almacén de Datos Analítico y refresca automáticamente los datos cada 4 horas. Lo usa el Analista de BI para construir reportes y el Gerente Comercial para consultarlos.
 
 ### Diagrama de Contenedores (C2)
 El diagrama de contenedores permite hacer un "zoom" dentro del límite del sistema InsightPipeline para desglosar la arquitectura de software en sus aplicaciones y almacenes de datos individuales. En esta vista se detallan las responsabilidades distribuidas, las elecciones tecnológicas clave y cómo estos componentes se comunican entre sí para cumplir con los requerimientos de procesamiento y latencia de DataCo.
@@ -135,32 +132,39 @@ El diagrama de contenedores permite hacer un "zoom" dentro del límite del siste
 </div>
 <br>
 
-### Contenedor de Orquestación e Ingesta mediante Azure Data Factory
- Azure Data Factory cumple el papel de orquestador principal dentro del pipeline de datos de DataCo, ya que se encarga de coordinar y automatizar el flujo de información entre todos los sistemas del proyecto. Su función principal es conectar las diferentes fuentes de datos, controlar los procesos de carga y garantizar que la información llegue correctamente a cada etapa del sistema analítico.
+### Contenedor de Orquestación e Ingesta mediante Orquestador de Datos
 
-Azure Data Factory se relaciona directamente con los sistemas fuente como SAP, Oracle Database, Salesforce y el sistema GPS, desde donde extrae datos en formatos CSV, JSON o mediante APIs REST. Esta integración permite centralizar información que originalmente se encuentra distribuida y aislada entre diferentes plataformas
+El Orquestador de Datos cumple el papel de orquestador principal dentro del pipeline de datos de DataCo, ya que se encarga de coordinar y automatizar el flujo de información entre todos los sistemas del proyecto. Su función principal es conectar las diferentes fuentes de datos, controlar los procesos de carga y garantizar que la información llegue correctamente a cada etapa del sistema analítico.
 
-### Contenedor de Almacenamiento Persistente en Azure Data Lake Storage Gen2
-En el diagrama de contenedores se aprecia como Azure Data Lake Storage Gen2 actúa como el repositorio central y pilar de persistencia de los datos en InsightPipeline, permitiendo la transición de los datos desde un estado crudo hacia uno estructurado y optimizado. Su función principal es servir como zona de aterrizaje para la ingesta masiva de archivos CSV y JSON provenientes de fuentes heterogéneas como SAP, Oracle y GPS, los cuales son depositados allí bajo la orquestación de Azure Data Factory. Al implementar un espacio de nombres jerárquico, este componente facilita una organización eficiente que soporta el procesamiento de hasta 5 millones de registros, garantizando que la información esté disponible para las etapas posteriores de transformación dentro de los tiempos de rezago exigidos por el negocio.
+El Orquestador de Datos se relaciona directamente con los sistemas fuente como SAP, Oracle Database, Salesforce y el sistema GPS, desde donde extrae datos en formatos CSV, JSON o mediante APIs REST. Esta integración permite centralizar información que originalmente se encuentra distribuida y aislada entre diferentes plataformas.
 
 
-La integración técnica de este almacenamiento permite un ciclo de procesamiento fundamental donde Azure Databricks extrae los archivos en bruto para ejecutar notebooks de limpieza y estandarización, devolviendo posteriormente la información enriquecida en formato Parquet a una zona refinada. Esta arquitectura de capas no solo optimiza el rendimiento de las consultas analíticas que alimentan a Azure SQL Database, sino que también garantiza al Auditor la trazabilidad necesaria para validar cada transformación según las políticas de gobierno de datos de DataCo. De este modo, el sistema asegura que los activos de información sean confiables, escalables y estén listos para la toma de decisiones estratégicas.
+### Contenedor de Almacenamiento Persistente en Repositorio de Datos en Capas
 
-### Contenedor de Procesamiento y Transformación con Azure Databricks
-Azure Databricks se encarga de la transformación del pipeline de DataCo. Se ejecuta y es activado por Azure Data Factory mediante un trigger que inicia la ejecución de los notebooks de limpieza, estandarización y enriquecimiento de datos en Apache Spark.
+En el diagrama de contenedores se aprecia como el Repositorio de Datos en Capas actúa como el repositorio central y pilar de persistencia de los datos en InsightPipeline, permitiendo la transición de los datos desde un estado crudo hacia uno estructurado y optimizado. Su función principal es servir como zona de aterrizaje para la ingesta masiva de archivos CSV y JSON provenientes de fuentes heterogéneas como SAP, Oracle y GPS, los cuales son depositados allí bajo la orquestación del Orquestador de Datos. Al implementar un espacio de nombres jerárquico, este componente facilita una organización eficiente que soporta el procesamiento de hasta 5 millones de registros, garantizando que la información esté disponible para las etapas posteriores de transformación dentro de los tiempos de rezago exigidos por el negocio.
 
-Se relaciona directamente con Data Lake Storage Gen2 en ambas direcciones: primero, desde la zona raw lee y sube los archivos CSV/JSON crudos y escribe los datos transformados en formato Parquet en la zona curated. Este formato mejora el rendimiento de las consultas siguientes. Luego de completar las transformaciones Databricks carga los datos procesados (tablas) directamente en Azure SQL Database, donde quedan disponibles para ser consultados por Power BI.
+La integración técnica de este almacenamiento permite un ciclo de procesamiento fundamental donde el Motor de Procesamiento extrae los archivos en bruto para ejecutar notebooks de limpieza y estandarización, devolviendo posteriormente la información enriquecida en formato Parquet a una zona refinada. Esta arquitectura de capas no solo optimiza el rendimiento de las consultas analíticas que alimentan al Almacén de Datos Analítico, sino que también garantiza al Auditor la trazabilidad necesaria para validar cada transformación según las políticas de gobierno de datos de DataCo. De este modo, el sistema asegura que los activos de información sean confiables, escalables y estén listos para la toma de decisiones estratégicas.
 
 
-### Contenedor de Almacén Analítico en Azure SQL Database
-es un servicio administrado de base de datos relacional en la nube de Microsoft basado en el motor de SQL Server. Proporciona alta disponibilidad, escalabilidad automática, seguridad avanzada y administración simplificada sin necesidad de gestionar infraestructura física. En el diagrama, Azure SQL Database actúa como el repositorio analítico central donde se almacena el modelo dimensional de datos, permitiendo consultas optimizadas para reporting, análisis comercial y auditoría. Además, implementa control de acceso por roles y sirve como fuente de datos para los dashboards de Power BI y las consultas SQL realizadas por usuarios de negocio y auditores.
+### Contenedor de Procesamiento y Transformación con Motor de Procesamiento
 
-Azure Databricks se conecta con Azure SQL Database para cargar los datos previamente transformados y enriquecidos durante los procesos ETL. Una vez almacenada la información en Azure SQL Database, Power BI se conecta directamente para consumir las tablas analíticas y actualizar automáticamente los dashboards cada 4 horas. De esta manera, Power BI permite que los usuarios visualicen indicadores de ventas, inventario, logística y auditoría en tiempo real, apoyando la toma de decisiones estratégicas y el análisis operativo del negocio.
+El Motor de Procesamiento se encarga de la transformación del pipeline de DataCo. Se ejecuta y es activado por el Orquestador de Datos mediante un trigger que inicia la ejecución de los notebooks de limpieza, estandarización y enriquecimiento de datos en Apache Spark.
 
-### Contenedor de Visualización y Business Intelligence en Power BI
-Power BI es la herramienta utilizada para visualizar y analizar toda la información procesada en el pipeline de datos. Se conecta directamente con Azure SQL Database para consultar los datos ya organizados y actualizados automáticamente cada 4 horas.
+Se relaciona directamente con el Repositorio de Datos en Capas en ambas direcciones: primero, desde la zona raw lee y sube los archivos CSV/JSON crudos y escribe los datos transformados en formato Parquet en la zona curated. Este formato mejora el rendimiento de las consultas siguientes. Luego de completar las transformaciones el Motor de Procesamiento carga los datos procesados (tablas) directamente en el Almacén de Datos Analítico, donde quedan disponibles para ser consultados por la Capa de Visualización y Analytics.
 
-A través de dashboards interactivos, los analistas y gerentes pueden monitorear ventas, inventario, logística y abastecimiento en tiempo real. Además, Power BI permite crear reportes dinámicos, gráficos y métricas que facilitan la toma de decisiones comerciales.
+
+### Contenedor de Almacén Analítico en Almacén de Datos Analítico
+
+Es un servicio administrado de base de datos relacional en la nube de Microsoft basado en el motor de SQL Server. Proporciona alta disponibilidad, escalabilidad automática, seguridad avanzada y administración simplificada sin necesidad de gestionar infraestructura física. En el diagrama, el Almacén de Datos Analítico actúa como el repositorio analítico central donde se almacena el modelo dimensional de datos, permitiendo consultas optimizadas para reporting, análisis comercial y auditoría. Además, implementa control de acceso por roles y sirve como fuente de datos para los dashboards de la Capa de Visualización y Analytics y las consultas SQL realizadas por usuarios de negocio y auditores.
+
+El Motor de Procesamiento se conecta con el Almacén de Datos Analítico para cargar los datos previamente transformados y enriquecidos durante los procesos ETL. Una vez almacenada la información en el Almacén de Datos Analítico, la Capa de Visualización y Analytics se conecta directamente para consumir las tablas analíticas y actualizar automáticamente los dashboards cada 4 horas. De esta manera, la Capa de Visualización y Analytics permite que los usuarios visualicen indicadores de ventas, inventario, logística y auditoría en tiempo real, apoyando la toma de decisiones estratégicas y el análisis operativo del negocio.
+
+
+### Contenedor de Visualización y Business Intelligence en Capa de Visualización y Analytics
+
+La Capa de Visualización y Analytics es la herramienta utilizada para visualizar y analizar toda la información procesada en el pipeline de datos. Se conecta directamente con el Almacén de Datos Analítico para consultar los datos ya organizados y actualizados automáticamente cada 4 horas.
+
+A través de dashboards interactivos, los analistas y gerentes pueden monitorear ventas, inventario, logística y abastecimiento en tiempo real. Además, la Capa de Visualización y Analytics permite crear reportes dinámicos, gráficos y métricas que facilitan la toma de decisiones comerciales.
 
 También maneja seguridad mediante acceso por roles, asegurando que cada usuario vea únicamente la información correspondiente a su área. Finalmente, funciona como la capa visual del proyecto, transformando los datos técnicos del sistema en información clara, entendible y útil para el negocio.
 
@@ -224,7 +228,7 @@ Para finalizar el proceso, `load_warehouse.py` carga los datos en el Almacén de
 
 ---
 
-### Componentes del Contenedor Azure SQL Datebase
+### Componentes del Contenedor Almacén de Datos Analítico
 
 <br>
 <div align="center">
@@ -234,49 +238,54 @@ Para finalizar el proceso, `load_warehouse.py` carga los datos en el Almacén de
          width="85%">
     <figcaption>
       <br><br>
-      <i><b>Figure 6:</b> System Component Diagram.</i>
+      <i><b>Figure 6:</b> Diagram of the Analytical Data Warehouse Container System.</i>
     </figcaption>
   </figure>
 </div>
 <br>
 
-**Capa de integración JDBC / SQL Audit.**  
-Este componente actúa como interfaz de conexión segura entre los consumidores de datos (Power BI y herramientas externas) y Azure SQL. Utiliza JDBC, T-SQL, Azure AD y TLS 1.2. Recibe consultas vía JDBC/T‑SQL desde Power BI y otros clientes, se conecta al módulo de Roles y seguridad para validar permisos, y reenvía las consultas autorizadas al motor SQL subyacente. Intercambia consultas SQL, credenciales de usuario, metadatos de auditoría y conjuntos de resultados.
-
-**Roles y seguridad.**  
-Gestiona el control de acceso basado en roles (RBAC) y la seguridad a nivel de fila (RLS) mediante T‑SQL `GRANT` y vistas de seguridad integradas. Es validado por la Capa JDBC/SQL Audit antes de ejecutar cualquier consulta, y aplica políticas de lectura, escritura y DDL sobre las tablas `Fact_ventas`, `Fact_entregas`, `dim_producto` y las vistas analíticas. Intercambia roles de usuario, permisos sobre objetos y filtros de RLS por línea de negocio.
-
-**Fact_ventas.**  
-Tabla relacional en Azure SQL que almacena transacciones de facturación desde SAP. Su escritura es controlada por el rol `role_crl` (utilizado por Azure Data Factory o procesos ETL), mientras que la lectura se realiza mediante el rol `role_analyst` a través de vistas analíticas. Intercambia datos como facturas SAP, fecha, cliente y monto.
-
-**Fact_entregas.**  
-Tabla relacional en Azure SQL que registra eventos de GPS de rutas y tiempos de entrega. Se vincula lógicamente con `Fact_ventas` mediante correlación (por ejemplo, número de factura) y es consultada por las vistas analíticas para medir el cumplimiento de ruta. Intercambia información de GPS, ruta, tiempo y correlación con factura.
-
-**dim_producto.**  
-Tabla de dimensión en Azure SQL que provee datos maestros de producto, incluyendo códigos SAP, categoría y línea. Se relaciona con `Fact_ventas` mediante `cod_SAP` y sirve como fuente de datos para las vistas analíticas. Intercambia código SAP, categoría y línea de producto.
-
-**Vistas analíticas.**  
-Exponen métricas de negocio precalculadas, como ventas por región y cumplimiento de ruta, mediante vistas SQL materializadas o no materializadas. Son consumidas por Power BI a través de la Capa JDBC/SQL Audit y obtienen datos de `Fact_ventas`, `Fact_entregas` y `dim_producto`. Intercambian agregaciones de ventas e indicadores de logística.
-
-**Stored procedures.**  
-Ejecutan la lógica de carga (`usp_load_ventas`) y el control de calidad (`usp_rechaz_datos`) mediante procedimientos almacenados T‑SQL. Son invocados por Azure Data Factory durante los pipelines de ingestión y escriben en `Fact_ventas` y tablas de rechazos. Intercambian datos transformados, registros de error y conteos de filas cargadas.
-
-**Auditoría y logging.**  
-Registra todo acceso a datos y consultas por rol, con una retención de 90 días, utilizando tablas de auditoría como `audit_log_query_history` y posiblemente Azure SQL Auditing. Recibe eventos desde la Capa JDBC/SQL Audit y el motor SQL, y es consultable por el rol `role_audit`. Intercambia historial de consultas, usuario, timestamp y filas devueltas.
-
-**Azure Data Factory (ADF).**  
-Orquesta la ingesta y transformación de datos desde fuentes externas (SAP, GPS, Oracle) hacia Azure SQL. Utiliza pipelines, actividades Lookup y procedimientos almacenados. Ejecuta `usp_load_ventas` y `usp_rechaz_datos` en Azure SQL y se conecta a sistemas fuente. Intercambia datos crudos, comandos de ejecución de SPs y logs de actividad.
+**Capa de integración JDBC / SQL Audit.**
+Este componente actúa como interfaz de conexión segura entre los consumidores de datos (Capa de Visualización y Analytics y herramientas externas) y el Almacén de Datos Analítico. Utiliza JDBC, T-SQL, Azure AD y TLS 1.2. Recibe consultas vía JDBC/T-SQL desde la Capa de Visualización y Analytics y otros clientes, se conecta al módulo de Roles y seguridad para validar permisos, y reenvía las consultas autorizadas al motor SQL subyacente. Intercambia consultas SQL, credenciales de usuario, metadatos de auditoría y conjuntos de resultados.
 
 
-El **Gerente Comercial**, el **Analista Power BI**, el **Gerenciamiento de datos** y el **Auditor** son los principales actores externos. Los primeros tres se conectan a través de Power BI o clientes SQL para visualizar reportes y monitorear el sistema, mientras que el Auditor revisa los logs de auditoría y los permisos directamente.
+**Roles y seguridad.**
+Gestiona el control de acceso basado en roles (RBAC) y la seguridad a nivel de fila (RLS) mediante T-SQL `GRANT` y vistas de seguridad integradas. Es validado por la Capa JDBC/SQL Audit antes de ejecutar cualquier consulta, y aplica políticas de lectura, escritura y DDL sobre las tablas `Fact_ventas`, `Fact_entregas`, `dim_producto` y las vistas analíticas. Intercambia roles de usuario, permisos sobre objetos y filtros de RLS por línea de negocio.
+
+
+**Fact_ventas.**
+Tabla relacional en el Almacén de Datos Analítico que almacena transacciones de facturación desde SAP. Su escritura es controlada por el rol `role_crl` (utilizado por el Orquestador de Datos o procesos ETL), mientras que la lectura se realiza mediante el rol `role_analyst` a través de vistas analíticas. Intercambia datos como facturas SAP, fecha, cliente y monto.
+
+
+**Fact_entregas.**
+Tabla relacional en el Almacén de Datos Analítico que registra eventos de GPS de rutas y tiempos de entrega. Se vincula lógicamente con `Fact_ventas` mediante correlación (por ejemplo, número de factura) y es consultada por las vistas analíticas para medir el cumplimiento de ruta. Intercambia información de GPS, ruta, tiempo y correlación con factura.
+
+**dim_producto.**
+Tabla de dimensión en el Almacén de Datos Analítico que provee datos maestros de producto, incluyendo códigos SAP, categoría y línea. Se relaciona con `Fact_ventas` mediante `cod_SAP` y sirve como fuente de datos para las vistas analíticas. Intercambia código SAP, categoría y línea de producto.
+
+**Vistas analíticas.**
+Exponen métricas de negocio precalculadas, como ventas por región y cumplimiento de ruta, mediante vistas SQL materializadas o no materializadas. Son consumidas por la Capa de Visualización y Analytics a través de la Capa JDBC/SQL Audit y obtienen datos de `Fact_ventas`, `Fact_entregas` y `dim_producto`. Intercambian agregaciones de ventas e indicadores de logística.
+
+**Stored procedures.**
+Ejecutan la lógica de carga (`usp_load_ventas`) y el control de calidad (`usp_rechaz_datos`) mediante procedimientos almacenados T-SQL. Son invocados por el Orquestador de Datos durante los pipelines de ingestión y escriben en `Fact_ventas` y tablas de rechazos. Intercambian datos transformados, registros de error y conteos de filas cargadas.
+
+
+**Auditoría y logging.**
+Registra todo acceso a datos y consultas por rol, con una retención de 90 días, utilizando tablas de auditoría como `audit_log_query_history` y posiblemente SQL Auditing del Almacén de Datos Analítico. Recibe eventos desde la Capa JDBC/SQL Audit y el motor SQL, y es consultable por el rol `role_audit`. Intercambia historial de consultas, usuario, timestamp y filas devueltas.
+
+
+**Orquestador de Datos.**
+Orquesta la ingesta y transformación de datos desde fuentes externas (SAP, GPS, Oracle) hacia el Almacén de Datos Analítico. Utiliza pipelines, actividades Lookup y procedimientos almacenados. Ejecuta `usp_load_ventas` y `usp_rechaz_datos` en el Almacén de Datos Analítico y se conecta a sistemas fuente. Intercambia datos crudos, comandos de ejecución de SPs y logs de actividad.
+
+
+El **Gerente Comercial**, el **Analista de la Capa de Visualización y Analytics**, el **Gerenciamiento de datos** y el **Auditor** son los principales actores externos. Los primeros tres se conectan a través de la Capa de Visualización y Analytics o clientes SQL para visualizar reportes y monitorear el sistema, mientras que el Auditor revisa los logs de auditoría y los permisos directamente.
 
 #### Relaciones principales entre contenedores
 
-La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pase por un punto único de autenticación y autorización. Roles y seguridad aplica permisos de lectura, escritura y RLS sobre las tablas de hechos y dimensiones según la línea de negocio. Azure Data Factory invoca los stored procedures, desacoplando así la orquestación de la lógica de negocio. Las vistas analíticas encapsulan la lógica de negocio y agregan datos desde las tablas de hechos para un consumo eficiente en Power BI. Finalmente, la auditoría registra cada acceso desde la Capa JDBC para garantizar la trazabilidad.
+La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pase por un punto único de autenticación y autorización. Roles y seguridad aplica permisos de lectura, escritura y RLS sobre las tablas de hechos y dimensiones según la línea de negocio. El Orquestador de Datos invoca los stored procedures, desacoplando así la orquestación de la lógica de negocio. Las vistas analíticas encapsulan la lógica de negocio y agregan datos desde las tablas de hechos para un consumo eficiente en la Capa de Visualización y Analytics. Finalmente, la auditoría registra cada acceso desde la Capa JDBC para garantizar la trazabilidad.
 
 #### Flujo general de comunicación
 
-El flujo comienza con la ingesta y transformación: Azure Data Factory extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista Power BI conecta su dashboard mediante JDBC/T‑SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en Power BI sin acceder directamente a las tablas base.
+El flujo comienza con la ingesta y transformación: el Orquestador de Datos extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista de la Capa de Visualización y Analytics conecta su dashboard mediante JDBC/T-SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en la Capa de Visualización y Analytics sin acceder directamente a las tablas base.
 
 ### Componentes del Contenedor Power BI
 
