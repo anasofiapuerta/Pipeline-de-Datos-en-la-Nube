@@ -170,7 +170,7 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 
 ### Diagrama de Componentes (C3)
 
-### Componentes del Contenedor Azure Data Factory
+### Componentes del Contenedor: Orquestador de Datos
 
 <br>
 <div align="center">
@@ -179,7 +179,7 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
          width="85%">
     <figcaption>
       <br><br>
-      <i><b>Figure 3:</b> Azure Data Factory.</i>
+      <i><b>Figure 3:</b> Orquestador de Datos.</i>
     </figcaption>
   </figure>
 </div>
@@ -187,7 +187,7 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 
 El sistema integra cuatro fuentes principales: SAP, Oracle Database, Salesforce y GPS, las cuales envían información al Orquestador del Pipeline de Datos mediante diferentes mecanismos como archivos CSV por SFTP, API REST y cargas manuales en formato CSV. Este orquestador coordina todo el flujo de información e ingesta los datos en el Repositorio de Almacenamiento en Capas (Data Lake), donde la información pasa por distintas etapas, desde un estado crudo conocido como Bronze hasta uno optimizado llamado Gold. Durante este proceso, el Motor de Transformación de Datos realiza tareas de limpieza, transformación y unificación de códigos para asegurar la calidad y consistencia de los datos. Posteriormente, la información procesada se almacena en la Base de Datos Analítica, que funciona como una fuente única de verdad dentro del modelo dimensional, y finalmente el Componente de Inteligencia de Negocio (BI) utiliza estos datos para construir dashboards con actualización automática de métricas, facilitando el análisis y la toma de decisiones dentro de la organización. 
 
-### Componentes del Contenedor Azure Data Lake Storage Gen2
+### Componentes del Contenedor: Repositorio de Datos en Capas
 
 <br>
 <div align="center">
@@ -197,7 +197,7 @@ El sistema integra cuatro fuentes principales: SAP, Oracle Database, Salesforce 
          width="85%">
     <figcaption>
       <br><br>
-      <i><b>Figure 4:</b> Azure Data Lake Gen2 Component Diagram.</i>
+      <i><b>Figure 4:</b> Repositorio de Datos Component Diagram.</i>
     </figcaption>
   </figure>
 </div>
@@ -207,7 +207,7 @@ El diagrama representa la arquitectura interna del contenedor Azure Data Lake St
 
 La seguridad y el gobierno de los datos son gestionados de forma transversal por el componente Access Control Manager, el cual aplica políticas de permisos granulares (POSIX ACLs) sobre cada capa para proteger la información sensible de precios y márgenes. Simultáneamente, todas las operaciones de transformación realizadas por Databricks quedan registradas en el Audit & Telemetry Store mediante logs en formato JSON, permitiendo al Auditor verificar la trazabilidad completa del pipeline y asegurar el cumplimiento de los estándares de calidad exigidos por el negocio.
 
-### Componentes del Contenedor Azure Databricks
+### Componentes del Contenedor: Motor de procesamiento
 
 <br>
 <div align="center">
@@ -216,7 +216,7 @@ La seguridad y el gobierno de los datos son gestionados de forma transversal por
          width="85%">
     <figcaption>
       <br><br>
-      <i><b>Figure 5:</b> Azure Databricks Component Diagram.</i>
+      <i><b>Figure 5:</b> Motor de Procesamiento Component Diagram.</i>
     </figcaption>
   </figure>
 </div>
@@ -228,7 +228,7 @@ Para finalizar el proceso, `load_warehouse.py` carga los datos en el Almacén de
 
 ---
 
-### Componentes del Contenedor Almacén de Datos Analítico
+### Componentes del Contenedor: Almacén de Datos Analítico
 
 <br>
 <div align="center">
@@ -287,7 +287,7 @@ La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pas
 
 El flujo comienza con la ingesta y transformación: el Orquestador de Datos extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista de la Capa de Visualización y Analytics conecta su dashboard mediante JDBC/T-SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en la Capa de Visualización y Analytics sin acceder directamente a las tablas base.
 
-### Componentes del Contenedor Power BI
+### Componentes del Contenedor: Capa de Visualizacion y Analytics
 
 <br>
 <div align="center">
