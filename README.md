@@ -185,6 +185,132 @@ También maneja seguridad mediante acceso por roles, asegurando que cada usuario
 </div>
 <br>
 
+El sistema integra cuatro fuentes principales: SAP, Oracle Database, Salesforce y GPS, las cuales envían información al Orquestador del Pipeline de Datos mediante diferentes mecanismos como archivos CSV por SFTP, API REST y cargas manuales en formato CSV. Este orquestador coordina todo el flujo de información e ingesta los datos en el Repositorio de Datos en Capas, donde la información pasa por distintas etapas, desde un estado crudo conocido como Bronze hasta uno optimizado llamado Gold. Durante este proceso, el Motor de Procesamiento realiza tareas de limpieza, transformación y unificación de códigos para asegurar la calidad y consistencia de los datos. Posteriormente, la información procesada se almacena en el Almacen de Datos Analitico, que funciona como una fuente única de verdad dentro del modelo dimensional, y finalmente la Capa de Visualizacin y Analytics utiliza estos datos para construir dashboards con actualización automática de métricas, facilitando el análisis y la toma de decisiones dentro de la organización. 
+
+### Componentes del Contenedor: Repositorio de Datos en Capas
+
+<br>
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_adl_final.drawio.png" 
+         alt="System Context Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br><br>
+      <i><b>Figure 4:</b> Repositorio de Datos Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+<br>
+
+El diagrama representa la arquitectura interna del contenedor Repositorio de Datos en Capas, estructurado bajo el patrón de Arquitectura de Medallón para garantizar la integridad de los 5 millones de registros de DataCo. El flujo inicia con Orquestador de Datos, que ingesta los datos crudos desde fuentes externas hacia la zona Bronze, mientras que el motor de Motor de Procesamiento actúa como el núcleo de procesamiento al leer de dicha zona para limpiar, estandarizar y enriquecer la información progresivamente a través de las capas Silver y Gold. Este proceso culmina con la sincronización de las tablas refinadas hacia Almacen de Datos Analitico para el consumo analítico final.
+
+La seguridad y el gobierno de los datos son gestionados de forma transversal por el componente Access Control Manager, el cual aplica políticas de permisos granulares (POSIX ACLs) sobre cada capa para proteger la información sensible de precios y márgenes. Simultáneamente, todas las operaciones de transformación realizadas por Motor de Procesamiento quedan registradas en el Audit & Telemetry Store mediante logs en formato JSON, permitiendo al Auditor verificar la trazabilidad completa del pipeline y asegurar el cumplimiento de los estándares de calidad exigidos por el negocio.
+
+### Componentes del Contenedor: Motor de procesamiento
+
+<br>
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_adb_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br><br>
+      <i><b>Figure 5:</b> Motor de Procesamiento Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+<br>
+
+El diagrama muestra los componentes internos de Motor de Procesamiento Premium dentro de DataCo. El Orquestador de Datos inicia el proceso invocando los notebooks de forma modular, y `ingest_sap.py` sube y lee los archivos CSV/JSON al Storage Account del Repositorio de Datos en la zona raw/bronze. Luego `clean_inventory.py` limpia y estandariza los datos eliminando duplicados y normalizando fechas y códigos de producto entre SAP y Oracle, mientras que `enrich_deliveries.py` integra la información de ventas con los registros del GPS para resolver la falta de trazabilidad entre facturas y entregas reales,se guardan los datos procesados en formato Parquet en la zona curated/gold del Repositorio de Datos.
+
+Para finalizar el proceso, `load_warehouse.py` carga los datos en el Almacen de Datos Analitico mediante autenticación IAM. Esta arquitectura modular automatiza la consolidación y transformación de la información, dejando los datos ready para análisis y visualización en la Capa de Visualizacin y Analytics.
+
+---
+
+### Componentes del Contenedor: Almacen de Datos Analitico
+
+<br>
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_sql_final.drawio.png" 
+         alt="System Component Diagram showing how people (actors, roles, personas, etc) and software systems are related." 
+         width="85%">
+    <figcaption>
+      <br><br>
+      <i><b>Figure 6:</b> Diagram of the Analytical Data Warehouse Container System.</i>
+    </figcaption>
+  </figure>
+</div>
+<br>
+
+Gestiona el control de acceso basado en roles (RBAC) y la seguridad a nivel de fila (RLS) mediante T-SQL `GRANT` y vistas de seguridad integradas. Es validado por la Capa JDBC/SQL Audit antes de ejecutar cualquier consulta, y aplica políticas de lectura, escritura y DDL sobre las tablas `Fact_ventas`, `Fact_entregas`, `dim_producto` y las vistas analíticas. Intercambia roles de usuario, permisos sobre objetos y filtros de RLS por línea de negocio.
+
+**Fact_ventas.**
+Tabla relacional en el Almacen de Datos Analitico que almacena transacciones de facturación desde SAP. Su escritura es controlada por el rol `role_crl` (utilizado por el Orquestador de Datos o procesos ETL), mientras que la lectura se realiza mediante el rol `role_analyst` a través de vistas analíticas. Intercambia datos como facturas SAP, fecha, cliente y monto.
+
+
+**Fact_entregas.**
+Tabla relacional en el Almacen de Datos Analitico que registra eventos de GPS de rutas y tiempos de entrega. Se vincula lógicamente con `Fact_ventas` mediante correlación (por ejemplo, número de factura) y es consultada por las vistas analíticas para medir el cumplimiento de ruta. Intercambia información de GPS, ruta, tiempo y correlación con factura.
+
+**dim_producto.**
+Tabla de dimensión en el Almacen de Datos Analitico que provee datos maestros de producto, incluyendo códigos SAP, categoría y línea. Se relaciona con `Fact_ventas` mediante `cod_SAP` y sirve como fuente de datos para las vistas analíticas. Intercambia código SAP, categoría y línea de producto.
+
+**Vistas analíticas.**
+Exponen métricas de negocio precalculadas, como ventas por región y cumplimiento de ruta, mediante vistas SQL materializadas o no materializadas. Son consumidas por la Capa de Visualizacin y Analytics a través de la Capa JDBC/SQL Audit y obtienen datos de `Fact_ventas`, `Fact_entregas` y `dim_producto`. Intercambian agregaciones de ventas e indicadores de logística.
+
+**Stored procedures.**
+Ejecutan la lógica de carga (`usp_load_ventas`) y el control de calidad (`usp_rechaz_datos`) mediante procedimientos almacenados T-SQL. Son invocados por el Orquestador de Datos durante los pipelines de ingestión y escriben en `Fact_ventas` y tablas de rechazos. Intercambian datos transformados, registros de error y conteos de filas cargadas.
+
+El **Gerente Comercial**, el **Analista de la Capa de Visualizacin y Analytics**, el **Gerenciamiento de datos** y el **Auditor** son los principales actores externos. Los primeros tres se conectan a través de la Capa de Visualizacin y Analytics o clientes SQL para visualizar reportes y monitorear el sistema, mientras que el Auditor revisa los logs de auditoría y los permisos directamente.
+
+#### Relaciones principales entre contenedores
+
+La Capa JDBC se relaciona con Roles y seguridad asegurando que toda consulta pase por un punto único de autenticación y autorización. Roles y seguridad aplica permisos de lectura, escritura y RLS sobre las tablas de hechos y dimensiones según la línea de negocio. El Orquestador de Datos invoca los stored procedures, desacoplando así la orquestación de la lógica de negocio. Las vistas analíticas encapsulan la lógica de negocio y agregan datos desde las tablas de hechos para un consumo eficiente en la Capa de Visualizacin y Analytics. Finalmente, la auditoría registra cada acceso desde la Capa JDBC para garantizar la trazabilidad.
+
+#### Flujo general de comunicación
+
+El flujo comienza con la ingesta y transformación: el Orquestador de Datos extrae datos de SAP (facturas), GPS (entregas) y Oracle (productos), y ejecuta los stored procedures `usp_load_ventas` y `usp_rechaz_datos` para cargar las tablas `Fact_ventas`, `Fact_entregas` y `dim_producto`. Luego, en la preparación analítica, sobre estas tablas base se crean las vistas analíticas (`ww_ventas_region`, `ww_complimiento_ruta`), que aplican reglas de negocio y RLS. En el acceso a datos, un Analista de la Capa de Visualizacin y Analytics conecta su dashboard mediante JDBC/T-SQL hacia la Capa de integración; esta capa delega la autenticación en Azure AD y verifica los roles contra el componente Roles y seguridad. Si el usuario posee el rol `role_analyst`, se ejecuta la consulta sobre las vistas analíticas y el motor SQL aplica el filtrado por línea de negocio. Paralelamente, cada consulta (exitosa o fallida) se escribe en `audit_log_query_history` para auditoría, y un Auditor con `role_audit` puede consultar este historial directamente. Finalmente, en la visualización, el Gerente Comercial y el Gerenciamiento de datos ven reportes predefinidos en la Capa de Visualizacin y Analytics sin acceder directamente a las tablas base.
+
+### Componentes del Contenedor: Capa de Visualizacin y Analytics
+
+<br>
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_pwbi_final.drawio.png"
+         width="85%">
+    <figcaption>
+      <br><br>
+      <i><b>Figure 7:</b> System Component Diagram.</i>
+    </figcaption>
+  </figure>
+</div>
+<br>
+
+Este diagrama muestra una arquitectura de datos y análisis en Capa de Visualizacin y Analytics conectada con servicios de Almacen de Datos Analitico y Motor de Procesamiento. Básicamente, explica cómo los datos se integran, transforman, almacenan y finalmente se visualizan en Capa de Visualizacin y Analytics para apoyar la toma de decisiones.
+
+En el flujo, Motor de Procesamiento procesa los datos y los envía mediante una capa de integración JDBC/SQL hacia la base de datos en Azure. Luego se manejan aspectos de roles y seguridad, permitiendo controlar qué usuarios pueden acceder a determinada información mediante permisos y seguridad a nivel de filas.
+Después aparecen las tablas de hechos como fact_ventas y fact_entregas, que almacenan información principal del negocio, y las tablas de dimensión como dim_producto, dim_cliente y dim_tiempo, que sirven para organizar y analizar los datos de manera más eficiente. Este modelo corresponde a un esquema dimensional utilizado en inteligencia de negocios.
+
+También se incluyen vistas analíticas, stored procedures, auditoría y gobierno de datos, los cuales ayudan a automatizar procesos, mantener la calidad de la información y registrar accesos o cambios realizados en el sistema.
+
+Finalmente, Capa de Visualizacin y Analytics se conecta a esta estructura mediante Almacen de Datos Analitico para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
+
+---
+
+<br>
+<div align="center">
+  <figure>
+    <img src="assets/c4_model/final/c3_adf_final.drawio.png" 
+         width="85%">
+    <figcaption>
+      <br><br>
+      <i><b>Figure 3:</b> Orquestador de Datos.</i>
+    </figcaption>
+  </figure>
+</div>
+<br>
+
 El sistema integra cuatro fuentes principales: SAP, Oracle Database, Salesforce y GPS, las cuales envían información al Orquestador del Pipeline de Datos mediante diferentes mecanismos como archivos CSV por SFTP, API REST y cargas manuales en formato CSV. Este orquestador coordina todo el flujo de información e ingesta los datos en el Repositorio de Almacenamiento en Capas (Data Lake), donde la información pasa por distintas etapas, desde un estado crudo conocido como Bronze hasta uno optimizado llamado Gold. Durante este proceso, el Motor de Transformación de Datos realiza tareas de limpieza, transformación y unificación de códigos para asegurar la calidad y consistencia de los datos. Posteriormente, la información procesada se almacena en la Base de Datos Analítica, que funciona como una fuente única de verdad dentro del modelo dimensional, y finalmente el Componente de Inteligencia de Negocio (BI) utiliza estos datos para construir dashboards con actualización automática de métricas, facilitando el análisis y la toma de decisiones dentro de la organización. 
 
 ### Componentes del Contenedor: Repositorio de Datos en Capas
@@ -244,13 +370,7 @@ Para finalizar el proceso, `load_warehouse.py` carga los datos en el Almacén de
 </div>
 <br>
 
-**Capa de integración JDBC / SQL Audit.**
-Este componente actúa como interfaz de conexión segura entre los consumidores de datos (Capa de Visualización y Analytics y herramientas externas) y el Almacén de Datos Analítico. Utiliza JDBC, T-SQL, Azure AD y TLS 1.2. Recibe consultas vía JDBC/T-SQL desde la Capa de Visualización y Analytics y otros clientes, se conecta al módulo de Roles y seguridad para validar permisos, y reenvía las consultas autorizadas al motor SQL subyacente. Intercambia consultas SQL, credenciales de usuario, metadatos de auditoría y conjuntos de resultados.
-
-
-**Roles y seguridad.**
 Gestiona el control de acceso basado en roles (RBAC) y la seguridad a nivel de fila (RLS) mediante T-SQL `GRANT` y vistas de seguridad integradas. Es validado por la Capa JDBC/SQL Audit antes de ejecutar cualquier consulta, y aplica políticas de lectura, escritura y DDL sobre las tablas `Fact_ventas`, `Fact_entregas`, `dim_producto` y las vistas analíticas. Intercambia roles de usuario, permisos sobre objetos y filtros de RLS por línea de negocio.
-
 
 **Fact_ventas.**
 Tabla relacional en el Almacén de Datos Analítico que almacena transacciones de facturación desde SAP. Su escritura es controlada por el rol `role_crl` (utilizado por el Orquestador de Datos o procesos ETL), mientras que la lectura se realiza mediante el rol `role_analyst` a través de vistas analíticas. Intercambia datos como facturas SAP, fecha, cliente y monto.
@@ -267,15 +387,6 @@ Exponen métricas de negocio precalculadas, como ventas por región y cumplimien
 
 **Stored procedures.**
 Ejecutan la lógica de carga (`usp_load_ventas`) y el control de calidad (`usp_rechaz_datos`) mediante procedimientos almacenados T-SQL. Son invocados por el Orquestador de Datos durante los pipelines de ingestión y escriben en `Fact_ventas` y tablas de rechazos. Intercambian datos transformados, registros de error y conteos de filas cargadas.
-
-
-**Auditoría y logging.**
-Registra todo acceso a datos y consultas por rol, con una retención de 90 días, utilizando tablas de auditoría como `audit_log_query_history` y posiblemente SQL Auditing del Almacén de Datos Analítico. Recibe eventos desde la Capa JDBC/SQL Audit y el motor SQL, y es consultable por el rol `role_audit`. Intercambia historial de consultas, usuario, timestamp y filas devueltas.
-
-
-**Orquestador de Datos.**
-Orquesta la ingesta y transformación de datos desde fuentes externas (SAP, GPS, Oracle) hacia el Almacén de Datos Analítico. Utiliza pipelines, actividades Lookup y procedimientos almacenados. Ejecuta `usp_load_ventas` y `usp_rechaz_datos` en el Almacén de Datos Analítico y se conecta a sistemas fuente. Intercambia datos crudos, comandos de ejecución de SPs y logs de actividad.
-
 
 El **Gerente Comercial**, el **Analista de la Capa de Visualización y Analytics**, el **Gerenciamiento de datos** y el **Auditor** son los principales actores externos. Los primeros tres se conectan a través de la Capa de Visualización y Analytics o clientes SQL para visualizar reportes y monitorear el sistema, mientras que el Auditor revisa los logs de auditoría y los permisos directamente.
 
@@ -310,55 +421,6 @@ Después aparecen las tablas de hechos como fact_ventas y fact_entregas, que alm
 También se incluyen vistas analíticas, stored procedures, auditoría y gobierno de datos, los cuales ayudan a automatizar procesos, mantener la calidad de la información y registrar accesos o cambios realizados en el sistema.
 
 Finalmente, Capa de Visulazacion y Analytics se conecta a esta estructura mediante Almancen de datos  analiticos para que analistas, gerentes y auditores puedan crear dashboards, reportes e indicadores visuales que faciliten el análisis empresarial y la toma de decisiones.
-
----
-
-### Evidencias 
-
-### Azure Data Factory
-
-<div align="center">
-  <figure>
-    <img src="assets/implementation_screens/adf/evidencia1_adf.png" 
-         width="85%">
-    <figcaption>
-      <br>
-      <i><b>Figure 1:</b> Azure Data Factory conexion.</i>
-    </figcaption>
-  </figure>
-</div>
-
-En esta imagen ejecutamos un pipeline llamado Insight_Pipeline. Lo lancé en modo debug y el resultado fue exitoso que se puede ver el estado "Succeeded" y los primeros detalles de las actividades en el panel inferior
-
-
-
-<div align="center">
-  <figure>
-    <img src="assets/implementation_screens/adf/evidencia2_adf.png" 
-         width="85%">
-    <figcaption>
-      <br>
-      <i><b>Figure 2:</b> Azure Data Factory conexion.</i>
-    </figcaption>
-  </figure>
-</div>
-
-Aquí ya tengo una vista más clara del flujo completo del pipeline. Vemos la cadena secuencial de 7 actividades:  donde arranco con NB-1 Bronze, espero con Wait 1, proceso NB-2 Silver, espero con Wait 2, proceso NB-3 Gold, espero con Wait 3, y finalizo con NB-4 To SQL. Todo corrió exitosamente
-
-
-
-<div align="center">
-  <figure>
-    <img src="assets/implementation_screens/adf/evidencia3_adf.png" 
-         width="85%">
-    <figcaption>
-      <br>
-      <i><b>Figure 3:</b> Azure Data Factory conexion.</i>
-    </figcaption>
-  </figure>
-</div>
-
-Ya finalmente la tabla nos muestra los resultados de las 7 actividades que ejecuté en el pipeline, todas con estado exitoso. Las actividades Web corresponden a los notebooks de cada capa (Bronze, Silver, Gold y To SQL) y me tomaron entre 5 y 13 segundos cada una, mientras que las tres actividades Wait introdujeron pausas de 1 minuto entre notebook y notebook
 
 ---
 
