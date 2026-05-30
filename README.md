@@ -11,6 +11,14 @@
 
 ---
 
+## 🚀 Implementación del Pipeline
+
+✨ **¡Mira nuestro video de implementación en acción!** ✨
+
+[![YouTube | Implementación del Pipeline](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/OHZHV-ZAWSo)
+
+---
+
 ## Contexto del caso
 
 ### Descripción de la empresa
